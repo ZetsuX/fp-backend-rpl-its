@@ -1,4 +1,1 @@
-# Gin GORM Template (Clean Architecture)
-
-## Description
-A starter template for projects using Gin or GORM (Golang)
+# FP Backend Oprec Admin RPL Kelompok 5 (Sistem Reservasi Tiket)
