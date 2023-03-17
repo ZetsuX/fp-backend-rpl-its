@@ -43,7 +43,7 @@ func (userC *userController) Register(ctx *gin.Context) {
 
 	newUser, err := userC.userService.CreateNewUser(ctx, userDTO)
 	if err != nil {
-		resp := common.CreateFailResponse(err.Error(), http.StatusBadRequest)
+		resp := common.CreateFailResponse("Failed to process user sign up request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
