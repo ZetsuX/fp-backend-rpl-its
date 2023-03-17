@@ -34,6 +34,11 @@ func DBSetup() *gorm.DB {
 
 	err = db.AutoMigrate(
 		entity.User{},
+		entity.Film{},
+		entity.Area{},
+		entity.Session{},
+		entity.Transaction{},
+		entity.Spot{},
 	)
 	if err != nil {
 		fmt.Println(err)
