@@ -48,6 +48,9 @@ func (userS *userService) VerifyLogin(ctx context.Context, identifier string, pa
 }
 
 func (userS *userService) CreateNewUser(ctx context.Context, userDTO dto.UserRegisterRequest) (entity.User, error) {
+	// Fill user role
+	userDTO.Role = "user"
+
 	// Copy UserDTO to empty newly created user var
 	var user entity.User
 	copier.Copy(&user, &userDTO)
