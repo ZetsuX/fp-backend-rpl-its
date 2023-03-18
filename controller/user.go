@@ -53,10 +53,12 @@ func (userC *userController) Register(ctx *gin.Context) {
 	// Check if duplicate is found
 	if !(reflect.DeepEqual(userCheck, entity.User{})) {
 		var resp common.Response
-		if userCheck.Username == userDTO.Username {
-			resp = common.CreateFailResponse("username already used", http.StatusBadRequest)
+		if userCheck.Username == userDTO.Username && userCheck.Email == userDTO.Email {
+			resp = common.CreateFailResponse("username and email are already used", http.StatusBadRequest)
+		} else if userCheck.Username == userDTO.Username {
+			resp = common.CreateFailResponse("username is already used", http.StatusBadRequest)
 		} else if userCheck.Email == userDTO.Email {
-			resp = common.CreateFailResponse("email already used", http.StatusBadRequest)
+			resp = common.CreateFailResponse("email is already used", http.StatusBadRequest)
 		}
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
