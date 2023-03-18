@@ -42,6 +42,26 @@ func (userC *userController) Register(ctx *gin.Context) {
 		return
 	}
 
+	// Check for duplicate Username or Email
+	userCheck, err := userC.userService.GetUserByUsernameOrEmail(ctx, userDTO.Username, userDTO.Email)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process user register request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	// Check if duplicate is found
+	if !(reflect.DeepEqual(userCheck, entity.User{})) {
+		var resp common.Response
+		if userCheck.Username == userDTO.Username {
+			resp = common.CreateFailResponse("username already used", http.StatusBadRequest)
+		} else if userCheck.Email == userDTO.Email {
+			resp = common.CreateFailResponse("email already used", http.StatusBadRequest)
+		}
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
 	newUser, err := userC.userService.CreateNewUser(ctx, userDTO)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to process user register request", http.StatusBadRequest)
@@ -101,7 +121,7 @@ func (userC *userController) GetAllUsers(ctx *gin.Context) {
 
 func (userC *userController) GetUserByUsername(ctx *gin.Context) {
 	username := ctx.Param("username")
-	user, err := userC.userService.GetUserByUsername(ctx, username)
+	user, err := userC.userService.GetUserByIdentifier(ctx, username)
 	if err != nil {
 		resp := common.CreateFailResponse(err.Error(), http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
