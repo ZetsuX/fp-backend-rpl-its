@@ -70,10 +70,10 @@ func (userR *userRepository) GetUserByIdentifier(ctx context.Context, tx *gorm.D
 	var err error
 	var user entity.User
 	if tx == nil {
-		tx = userR.db.WithContext(ctx).Debug().Where("username = $1 OR email = $2", username, email).Preload("Blogs").Preload("BlogLikes").Preload("CommentLikes").Take(&user)
+		tx = userR.db.WithContext(ctx).Debug().Where("username = $1 OR email = $2", username, email).Preload("Transactions").Take(&user)
 		err = tx.Error
 	} else {
-		err = tx.WithContext(ctx).Debug().Where("username = $1 OR email = $2", username, email).Preload("Blogs").Preload("BlogLikes").Preload("CommentLikes").Take(&user).Error
+		err = tx.WithContext(ctx).Debug().Where("username = $1 OR email = $2", username, email).Preload("Transactions").Take(&user).Error
 	}
 
 	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
@@ -86,10 +86,10 @@ func (userR *userRepository) GetUserByID(ctx context.Context, tx *gorm.DB, id ui
 	var err error
 	var user entity.User
 	if tx == nil {
-		tx = userR.db.WithContext(ctx).Debug().Where("id = $1", id).Preload("Blogs").Preload("BlogLikes").Preload("CommentLikes").Take(&user)
+		tx = userR.db.WithContext(ctx).Debug().Where("id = $1", id).Preload("Transactions").Take(&user)
 		err = tx.Error
 	} else {
-		err = tx.WithContext(ctx).Debug().Where("id = $1", id).Preload("Blogs").Preload("BlogLikes").Preload("CommentLikes").Take(&user).Error
+		err = tx.WithContext(ctx).Debug().Where("id = $1", id).Preload("Transactions").Take(&user).Error
 	}
 
 	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
@@ -103,10 +103,10 @@ func (userR *userRepository) GetAllUsers(ctx context.Context, tx *gorm.DB) ([]en
 	var users []entity.User
 
 	if tx == nil {
-		tx = userR.db.WithContext(ctx).Debug().Preload("Blogs").Preload("BlogLikes").Preload("CommentLikes").Find(&users)
+		tx = userR.db.WithContext(ctx).Debug().Preload("Transactions").Find(&users)
 		err = tx.Error
 	} else {
-		err = tx.WithContext(ctx).Debug().Preload("Blogs").Preload("BlogLikes").Preload("CommentLikes").Find(&users).Error
+		err = tx.WithContext(ctx).Debug().Preload("Transactions").Find(&users).Error
 	}
 
 	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {

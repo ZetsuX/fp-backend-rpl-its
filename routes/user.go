@@ -13,6 +13,7 @@ func UserRoutes(router *gin.Engine, userC controller.UserController) {
 	{
 		userRoutes.GET("/", middleware.Authenticate(service.NewJWTService(), "admin"), userC.GetAllUsers)
 		userRoutes.GET("/:username", middleware.Authenticate(service.NewJWTService(), "user"), userC.GetUserByUsername)
+		userRoutes.GET("/me", middleware.Authenticate(service.NewJWTService(), "user"), userC.GetMe)
 		userRoutes.PUT("/name", middleware.Authenticate(service.NewJWTService(), "user"), userC.UpdateSelfName)
 		userRoutes.DELETE("/", middleware.Authenticate(service.NewJWTService(), "user"), userC.DeleteSelfUser)
 		userRoutes.POST("/", userC.Register)

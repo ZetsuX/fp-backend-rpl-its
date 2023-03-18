@@ -23,6 +23,7 @@ type UserService interface {
 	GetUserByIdentifier(ctx context.Context, identifier string) (entity.User, error)
 	GetUserByUsername(ctx context.Context, username string) (entity.User, error)
 	UpdateSelfName(ctx context.Context, userDTO dto.UserNameUpdateRequest, id uint64) (entity.User, error)
+	GetUserByID(ctx context.Context, id uint64) (entity.User, error)
 	DeleteSelfUser(ctx context.Context, id uint64) error
 }
 
@@ -92,6 +93,14 @@ func (userS *userService) GetUserByIdentifier(ctx context.Context, identifier st
 
 func (userS *userService) GetUserByUsername(ctx context.Context, username string) (entity.User, error) {
 	user, err := userS.userRepository.GetUserByIdentifier(ctx, nil, username, "")
+	if err != nil {
+		return entity.User{}, err
+	}
+	return user, nil
+}
+
+func (userS *userService) GetUserByID(ctx context.Context, id uint64) (entity.User, error) {
+	user, err := userS.userRepository.GetUserByID(ctx, nil, id)
 	if err != nil {
 		return entity.User{}, err
 	}
