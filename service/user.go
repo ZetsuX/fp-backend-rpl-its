@@ -100,7 +100,11 @@ func (userS *userService) GetUserByUsername(ctx context.Context, username string
 }
 
 func (userS *userService) GetUserByID(ctx context.Context, id uint64) (entity.User, error) {
-	return userS.userRepository.GetUserByID(ctx, nil, id)
+	user, err := userS.userRepository.GetUserByID(ctx, nil, id)
+	if err != nil {
+		return entity.User{}, err
+	}
+	return user, nil
 }
 
 func (userS *userService) UpdateSelfName(ctx context.Context, userDTO dto.UserNameUpdateRequest, id uint64) (entity.User, error) {
