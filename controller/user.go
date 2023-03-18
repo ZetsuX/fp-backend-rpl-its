@@ -121,7 +121,7 @@ func (userC *userController) GetMe(ctx *gin.Context) {
 	id := ctx.GetUint64("ID")
 	user, err := userC.userService.GetUserByID(ctx, id)
 	if err != nil {
-		resp := common.CreateFailResponse(err.Error(), http.StatusBadRequest)
+		resp := common.CreateFailResponse("failed to fetch user", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
