@@ -21,6 +21,7 @@ type UserController interface {
 	Login(ctx *gin.Context)
 	GetAllUsers(ctx *gin.Context)
 	GetUserByUsername(ctx *gin.Context)
+	GetMe(ctx *gin.Context)
 	UpdateSelfName(ctx *gin.Context)
 	DeleteSelfUser(ctx *gin.Context)
 }
@@ -101,6 +102,24 @@ func (userC *userController) GetAllUsers(ctx *gin.Context) {
 func (userC *userController) GetUserByUsername(ctx *gin.Context) {
 	username := ctx.Param("username")
 	user, err := userC.userService.GetUserByUsername(ctx, username)
+	if err != nil {
+		resp := common.CreateFailResponse(err.Error(), http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var resp common.Response
+	if reflect.DeepEqual(user, entity.User{}) {
+		resp = common.CreateSuccessResponse("user not found", http.StatusOK, nil)
+	} else {
+		resp = common.CreateSuccessResponse("successfully fetched user", http.StatusOK, user)
+	}
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (userC *userController) GetMe(ctx *gin.Context) {
+	id := ctx.GetUint64("ID")
+	user, err := userC.userService.GetUserByID(ctx, id)
 	if err != nil {
 		resp := common.CreateFailResponse(err.Error(), http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
