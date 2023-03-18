@@ -12,7 +12,6 @@ type User struct {
 	Name         string        `json:"name" binding:"required"`
 	Username     string        `json:"username" binding:"required"`
 	Email        string        `json:"email" binding:"required"`
-	NoTelp   	 string 	   `json:"noTelp" binding:"required"`
 	Password     string        `json:"password" binding:"required"`
 	Role         string        `json:"role" binding:"required"`
 	Transactions []Transaction `json:"spot,omitempty"`

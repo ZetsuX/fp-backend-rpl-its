@@ -5,7 +5,6 @@ type UserRegisterRequest struct {
 	Username string `json:"username" binding:"required"`
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
-	NoTelp   string `json:"noTelp" binding:"required"`
 	Role     string `json:"role" binding:"required"`
 }
 
