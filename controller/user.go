@@ -36,19 +36,19 @@ func (userC *userController) Register(ctx *gin.Context) {
 	var userDTO dto.UserRegisterRequest
 	err := ctx.ShouldBind(&userDTO)
 	if err != nil {
-		resp := common.CreateFailResponse("Failed to process user sign up request", http.StatusBadRequest)
+		resp := common.CreateFailResponse("Failed to process user Register request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
 
 	newUser, err := userC.userService.CreateNewUser(ctx, userDTO)
 	if err != nil {
-		resp := common.CreateFailResponse("Failed to process user sign up request", http.StatusBadRequest)
+		resp := common.CreateFailResponse("Failed to process user Register request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
 
-	resp := common.CreateSuccessResponse("user signed up successfully", http.StatusCreated, newUser)
+	resp := common.CreateSuccessResponse("user Register successfully", http.StatusCreated, newUser)
 	ctx.JSON(http.StatusCreated, resp)
 }
 
@@ -56,7 +56,7 @@ func (userC *userController) Login(ctx *gin.Context) {
 	var userDTO dto.UserLoginRequest
 	err := ctx.ShouldBind(&userDTO)
 	if err != nil {
-		resp := common.CreateFailResponse("Failed to process user sign in request", http.StatusBadRequest)
+		resp := common.CreateFailResponse("Failed to process user login request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -70,14 +70,14 @@ func (userC *userController) Login(ctx *gin.Context) {
 
 	user, err := userC.userService.GetUserByIdentifier(ctx.Request.Context(), userDTO.UserIdentifier)
 	if err != nil {
-		response := common.CreateFailResponse("Failed to process user sign in request", http.StatusBadRequest)
+		response := common.CreateFailResponse("Failed to process user login request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
 	token := userC.jwtService.GenerateToken(user.ID, user.Role)
 	authResp := common.CreateAuthResponse(token, user.Role)
-	resp := common.CreateSuccessResponse("successfully signed in user", http.StatusOK, authResp)
+	resp := common.CreateSuccessResponse("successfully login user", http.StatusOK, authResp)
 	ctx.JSON(http.StatusOK, resp)
 }
 
