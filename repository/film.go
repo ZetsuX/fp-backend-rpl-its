@@ -25,8 +25,8 @@ type FilmRepository interface {
 	GetFilmBySlug(ctx context.Context, tx *gorm.DB, slug string) (entity.Film, error)
 	UpdateFilmBySlug(ctx context.Context, tx *gorm.DB, slug string, filmDTO dto.FilmUpdateRequest) (dto.FilmUpdateRequest, error)
 }
-func NewFilmRepository(db *gorm.DB) *userRepository {
-	return &userRepository{db: db}
+func NewFilmRepository(db *gorm.DB) FilmRepository {
+	return &filmRepository{db: db}
 }
 func (filmR *filmRepository) BeginTx(ctx context.Context) (*gorm.DB, error) {
 	tx := filmR.db.WithContext(ctx).Begin()
@@ -95,42 +95,33 @@ func (filmR *filmRepository) GetFilmBySlug(ctx context.Context, tx *gorm.DB, slu
 	return film, nil
 }
 func (filmR *filmRepository) UpdateFilmBySlug(ctx context.Context, tx *gorm.DB, slug string, filmDTO dto.FilmUpdateRequest) (dto.FilmUpdateRequest, error) {
-	var err error
-	if tx == nil {
-		tx = filmR.db.WithContext(ctx).Debug().Model(entity.Film{}).Where("slug = $1", slug).Updates(map[string]interface{}{
-			"Title": filmDTO.Title,
-			"Synopsis": filmDTO.Synopsis,
-			"Duration": filmDTO.Duration,
-			"Genre": filmDTO.Genre,
-			"Producer": filmDTO.Producer,
-			"Director": filmDTO.Director,
-			"Writer": filmDTO.Writer,
-			"Production": filmDTO.Production,
-			"Cast": filmDTO.Cast,
-			"Trailer": filmDTO.Trailer,
-			"Image": filmDTO.Image,
-			"Status": filmDTO.Status,
-		})
-		err = tx.Error
-	} else {
-		err = tx.WithContext(ctx).Debug().Model(entity.Film{}).Where("slug = $1", slug).Updates(map[string]interface{}{
-			"Title": filmDTO.Title,
-			"Synopsis": filmDTO.Synopsis,
-			"Duration": filmDTO.Duration,
-			"Genre": filmDTO.Genre,
-			"Producer": filmDTO.Producer,
-			"Director": filmDTO.Director,
-			"Writer": filmDTO.Writer,
-			"Production": filmDTO.Production,
-			"Cast": filmDTO.Cast,
-			"Trailer": filmDTO.Trailer,
-			"Image": filmDTO.Image,
-			"Status": filmDTO.Status,
-		}).Error
-	}
+    var err error
+    film := &entity.Film{
+        Title:      filmDTO.Title,
+        Slug:       slug,
+        Synopsis:   filmDTO.Synopsis,
+        Duration:   filmDTO.Duration,
+        Genre:      filmDTO.Genre,
+        Producer:   filmDTO.Producer,
+        Director:   filmDTO.Director,
+        Writer:     filmDTO.Writer,
+        Production: filmDTO.Production,
+        Cast:       filmDTO.Cast,
+        Trailer:    filmDTO.Trailer,
+        Image:      filmDTO.Image,
+        Status:     filmDTO.Status,
+    }
 
-	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
-		return filmDTO, err
-	}
-	return filmDTO, nil
+    if tx == nil {
+        tx = filmR.db.WithContext(ctx).Debug()
+    }
+    
+    tx = tx.Model(entity.Film{}).Where("slug = ?", slug).Save(film)
+    err = tx.Error
+
+    if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
+        return filmDTO, err
+    }
+
+    return filmDTO, nil
 }

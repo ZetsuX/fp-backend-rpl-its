@@ -28,16 +28,18 @@ func main() {
 
 	// Setting Up Repositories
 	userR := repository.NewUserRepository(db)
-	areaR := repository.NewAreaRepository(db)
+	filmR := repository.NewFilmRepository(db)	areaR := repository.NewAreaRepository(db)
 
 	// Setting Up Services
 	userS := service.NewUserService(userR)
+	filmS := service.NewFilmService(filmR)
 	jwtS := service.NewJWTService()
 	areaS := service.NewAreaService(areaR)
 
 	// Setting Up Controllers
 	userC := controller.NewUserController(userS, jwtS)
-	areaC := controller.NewAreaController(areaS)
+	filmC := controller.NewfilmController(filmS,jwtS)
+	areaC := controller.NewAreaController(areaS, jwtS)
 
 	defer config.DBClose(db)
 
@@ -49,7 +51,7 @@ func main() {
 
 	// Setting Up Routes
 	routes.UserRoutes(server, userC)
-	routes.AreaRoutes(server, areaC)
+	routes.FilmRoutes(server,filmC)	routes.AreaRoutes(server, areaC)
 
 	// Running in localhost:8080
 	port := os.Getenv("PORT")
