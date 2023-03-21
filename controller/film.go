@@ -18,6 +18,8 @@ type filmController struct {
 
 type FilmController interface {
 	CreateFilm(ctx *gin.Context)
+	GetAllFilms(ctx *gin.Context)
+	UpdateFilm(ctx *gin.Context)
 }
 
 func NewfilmController(filmS service.FilmService, jwtS service.JWTService) FilmController {
