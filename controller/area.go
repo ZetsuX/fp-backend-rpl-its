@@ -21,6 +21,7 @@ type AreaController interface {
 	CreateArea(ctx *gin.Context)
 	GetAllAreas(ctx *gin.Context)
 	GetAreaByID(ctx *gin.Context)
+	UpdateAreaByID(ctx *gin.Context)
 }
 
 func NewAreaController(areaS service.AreaService, jwtS service.JWTService) AreaController {
@@ -85,7 +86,7 @@ func (areaC *areaController) GetAllAreas(ctx *gin.Context) {
 func (areaC *areaController) GetAreaByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err != nil {
-		resp := common.CreateFailResponse("Failed to process id of get area request", http.StatusBadRequest)
+		resp := common.CreateFailResponse("failed to process id of get area request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -102,6 +103,68 @@ func (areaC *areaController) GetAreaByID(ctx *gin.Context) {
 		resp = common.CreateSuccessResponse("area not found", http.StatusOK, nil)
 	} else {
 		resp = common.CreateSuccessResponse("successfully fetched area", http.StatusOK, area)
+	}
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (areaC *areaController) UpdateAreaByID(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process id of get area request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var areaDTO dto.AreaCreateRequest
+	err = ctx.ShouldBind(&areaDTO)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process area update request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	area, err := areaC.areaService.GetAreaByID(ctx, id)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process area update request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if reflect.DeepEqual(area, entity.Area{}) {
+		resp := common.CreateFailResponse("area with given id not found", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if (area.Name != areaDTO.Name) {
+		// Check for duplicate Area Name
+		areaCheck, err := areaC.areaService.GetAreaByName(ctx, areaDTO.Name)
+		if err != nil {
+			resp := common.CreateFailResponse("failed to process area update request", http.StatusBadRequest)
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+			return
+		}
+
+		// Check if duplicate is found
+		if !(reflect.DeepEqual(areaCheck, entity.Area{})) {
+			resp := common.CreateFailResponse("name has already been used by another area", http.StatusBadRequest)
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+			return
+		}
+	}
+
+	area, err = areaC.areaService.UpdateArea(ctx, areaDTO, area)
+	if err != nil {
+		resp := common.CreateFailResponse(err.Error(), http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var resp common.Response
+	if reflect.DeepEqual(area, entity.Area{}) {
+		resp = common.CreateSuccessResponse("area not found", http.StatusOK, nil)
+	} else {
+		resp = common.CreateSuccessResponse("successfully updated area", http.StatusOK, area)
 	}
 	ctx.JSON(http.StatusOK, resp)
 }

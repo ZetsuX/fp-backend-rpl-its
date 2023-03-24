@@ -3,8 +3,10 @@ package repository
 import (
 	"context"
 	"errors"
+	"fp-rpl/dto"
 	"fp-rpl/entity"
 
+	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
@@ -23,6 +25,7 @@ type AreaRepository interface {
 	CreateNewArea(ctx context.Context, tx *gorm.DB, area entity.Area) (entity.Area, error)
 	GetAllAreas(ctx context.Context, tx *gorm.DB) ([]entity.Area, error)
 	GetAreaByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Area, error)
+	UpdateArea(ctx context.Context, tx *gorm.DB, areaDTO dto.AreaCreateRequest, area entity.Area) (entity.Area, error)
 }
 
 func NewAreaRepository(db *gorm.DB) *areaRepository {
@@ -111,4 +114,22 @@ func (areaR *areaRepository) GetAreaByID(ctx context.Context, tx *gorm.DB, id ui
 		return area, err
 	}
 	return area, nil
+}
+
+func (areaR *areaRepository) UpdateArea(ctx context.Context, tx *gorm.DB, areaDTO dto.AreaCreateRequest, area entity.Area) (entity.Area, error) {
+	var err error
+	areaUpdate := area
+	copier.Copy(&areaUpdate, &areaDTO)
+	
+	if tx == nil {
+		tx = areaR.db.WithContext(ctx).Debug().Save(&areaUpdate)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Save(&areaUpdate).Error
+	}
+
+	if err != nil {
+		return areaUpdate, err
+	}
+	return areaUpdate, nil
 }
