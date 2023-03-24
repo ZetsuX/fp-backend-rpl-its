@@ -10,5 +10,6 @@ func AreaRoutes(router *gin.Engine, areaC controller.AreaController) {
 	areaRoutes := router.Group("/api/v1/area")
 	{
 		areaRoutes.POST("/", areaC.CreateArea)
+		areaRoutes.GET("/", areaC.GetAllAreas)
 	}
 }
