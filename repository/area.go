@@ -21,6 +21,7 @@ type AreaRepository interface {
 	// functional
 	GetAreaByName(ctx context.Context, tx *gorm.DB, name string) (entity.Area, error)
 	CreateNewArea(ctx context.Context, tx *gorm.DB, area entity.Area) (entity.Area, error)
+	GetAllAreas(ctx context.Context, tx *gorm.DB) ([]entity.Area, error)
 }
 
 func NewAreaRepository(db *gorm.DB) *areaRepository {
@@ -76,4 +77,21 @@ func (areaR *areaRepository) CreateNewArea(ctx context.Context, tx *gorm.DB, are
 		return entity.Area{}, err
 	}
 	return area, nil
+}
+
+func (areaR *areaRepository) GetAllAreas(ctx context.Context, tx *gorm.DB) ([]entity.Area, error) {
+	var err error
+	var areas []entity.Area
+
+	if tx == nil {
+		tx = areaR.db.WithContext(ctx).Debug().Find(&areas)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Find(&areas).Error
+	}
+
+	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
+		return areas, err
+	}
+	return areas, nil
 }
