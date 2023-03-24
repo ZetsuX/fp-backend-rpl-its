@@ -22,6 +22,7 @@ type FilmController interface {
 	GetFilmDetailBySlug(ctx *gin.Context)
 	UpdateFilm(ctx *gin.Context)
 	DeleteFilm(ctx *gin.Context)
+	GetAllFilmsAvailable(ctx *gin.Context)
 }
 
 func NewfilmController(filmS service.FilmService, jwtS service.JWTService) FilmController {
@@ -62,6 +63,16 @@ func (fc *filmController) GetAllFilms(ctx *gin.Context) {
 	films, err := fc.filmService.GetAllFilm(ctx)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to get all film", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+	resp := common.CreateSuccessResponse("Get film success", http.StatusCreated, films)
+	ctx.JSON(http.StatusCreated, resp)
+}
+func (fc *filmController) GetAllFilmsAvailable(ctx *gin.Context) {
+	films, err := fc.filmService.GetAllFilmAvailable(ctx)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to get all film that available", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}

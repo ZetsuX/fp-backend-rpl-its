@@ -20,6 +20,7 @@ type FilmService interface {
 	GetAllFilm(ctx context.Context) ([]entity.Film, error)
 	UpdateFilm(ctx context.Context, filmDTO dto.FilmUpdateRequest, slug string) (dto.FilmUpdateRequest, error)
 	DeleteFilm(ctx context.Context, slug string) error
+	GetAllFilmAvailable(ctx context.Context) ([]entity.Film, error)
 }
 
 func NewFilmService(filmR repository.FilmRepository) FilmService {
@@ -54,6 +55,13 @@ func (fs *filmService) GetFilmDetailBySlug(ctx context.Context, slug string) (en
 
 func (fs *filmService) GetAllFilm(ctx context.Context) ([]entity.Film, error) {
 	films, err := fs.filmRepository.GetAllFilms(ctx, nil)
+	if err != nil {
+		return []entity.Film{}, err
+	}
+	return films, nil
+}
+func (fs *filmService) GetAllFilmAvailable(ctx context.Context) ([]entity.Film, error) {
+	films, err := fs.filmRepository.GetAllFilmsByStatus(ctx,nil,"playing")
 	if err != nil {
 		return []entity.Film{}, err
 	}

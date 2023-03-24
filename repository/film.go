@@ -26,6 +26,7 @@ type FilmRepository interface {
 	GetFilmDetailBySlug(ctx context.Context, tx *gorm.DB, slug string) (entity.Film, error)
 	UpdateFilmBySlug(ctx context.Context, tx *gorm.DB, slug string, filmDTO dto.FilmUpdateRequest) (dto.FilmUpdateRequest, error)
 	DeleteFilm(ctx context.Context, tx *gorm.DB, slug string) error
+	GetAllFilmsByStatus(ctx context.Context, tx *gorm.DB,status string) ([]entity.Film, error)
 }
 
 func NewFilmRepository(db *gorm.DB) FilmRepository {
@@ -82,7 +83,22 @@ func (filmR *filmRepository) GetAllFilms(ctx context.Context, tx *gorm.DB) ([]en
 	}
 	return films, nil
 }
+func (filmR *filmRepository) GetAllFilmsByStatus(ctx context.Context, tx *gorm.DB,status string) ([]entity.Film, error) {
+	var err error
+	var films []entity.Film
 
+	if tx == nil {
+		tx = filmR.db.WithContext(ctx).Debug().Where("status = ?",status).Find(&films)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Where("status = ?",status).Find(&films).Error
+	}
+
+	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
+		return films, err
+	}
+	return films, nil
+}
 func (filmR *filmRepository) GetFilmBySlug(ctx context.Context, tx *gorm.DB, slug string) (entity.Film, error) {
 	var err error
 	var film entity.Film
