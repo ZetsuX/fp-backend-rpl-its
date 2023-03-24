@@ -16,6 +16,7 @@ type filmService struct {
 type FilmService interface {
 	CreateNewFilm(ctx context.Context, filmDTO dto.FilmRegisterRequest) (entity.Film, error)
 	GetFilmBySlug(ctx context.Context, slug string) (entity.Film, error)
+	GetFilmByID(ctx context.Context, id uint64) (entity.Film, error)
 	GetFilmDetailBySlug(ctx context.Context, slug string) (entity.Film, error)
 	GetAllFilm(ctx context.Context) ([]entity.Film, error)
 	UpdateFilm(ctx context.Context, filmDTO dto.FilmUpdateRequest, slug string) (dto.FilmUpdateRequest, error)
@@ -39,6 +40,14 @@ func (fs *filmService) CreateNewFilm(ctx context.Context, filmDTO dto.FilmRegist
 }
 func (fs *filmService) GetFilmBySlug(ctx context.Context, slug string) (entity.Film, error) {
 	film, err := fs.filmRepository.GetFilmBySlug(ctx, nil, slug)
+	if err != nil {
+		return entity.Film{}, err
+	}
+	return film, nil
+}
+
+func (fs *filmService) GetFilmByID(ctx context.Context, id uint64) (entity.Film, error) {
+	film, err := fs.filmRepository.GetFilmByID(ctx, nil, id)
 	if err != nil {
 		return entity.Film{}, err
 	}

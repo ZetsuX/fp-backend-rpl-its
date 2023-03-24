@@ -23,6 +23,7 @@ type FilmRepository interface {
 	CreateNewFilm(ctx context.Context, tx *gorm.DB, user entity.Film) (entity.Film, error)
 	GetAllFilms(ctx context.Context, tx *gorm.DB) ([]entity.Film, error)
 	GetFilmBySlug(ctx context.Context, tx *gorm.DB, slug string) (entity.Film, error)
+	GetFilmByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Film, error)
 	GetFilmDetailBySlug(ctx context.Context, tx *gorm.DB, slug string) (entity.Film, error)
 	UpdateFilmBySlug(ctx context.Context, tx *gorm.DB, slug string, filmDTO dto.FilmUpdateRequest) (dto.FilmUpdateRequest, error)
 	DeleteFilm(ctx context.Context, tx *gorm.DB, slug string) error
@@ -107,6 +108,22 @@ func (filmR *filmRepository) GetFilmBySlug(ctx context.Context, tx *gorm.DB, slu
 		err = tx.Error
 	} else {
 		err = tx.WithContext(ctx).Debug().Where("slug = $1", slug).Take(&film).Error
+	}
+
+	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
+		return film, err
+	}
+	return film, nil
+}
+
+func (filmR *filmRepository) GetFilmByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Film, error) {
+	var err error
+	var film entity.Film
+	if tx == nil {
+		tx = filmR.db.WithContext(ctx).Debug().Where("id = $1", id).Take(&film)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Where("id = $1", id).Take(&film).Error
 	}
 
 	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
