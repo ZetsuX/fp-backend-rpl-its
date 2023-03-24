@@ -28,13 +28,16 @@ func main() {
 
 	// Setting Up Repositories
 	userR := repository.NewUserRepository(db)
+	areaR := repository.NewAreaRepository(db)
 
 	// Setting Up Services
 	userS := service.NewUserService(userR)
 	jwtS := service.NewJWTService()
+	areaS := service.NewAreaService(areaR)
 
 	// Setting Up Controllers
 	userC := controller.NewUserController(userS, jwtS)
+	areaC := controller.NewAreaController(areaS, jwtS)
 
 	defer config.DBClose(db)
 
@@ -46,6 +49,7 @@ func main() {
 
 	// Setting Up Routes
 	routes.UserRoutes(server, userC)
+	routes.AreaRoutes(server, areaC)
 
 	// Running in localhost:8080
 	port := os.Getenv("PORT")
