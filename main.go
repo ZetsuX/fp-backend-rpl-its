@@ -28,7 +28,8 @@ func main() {
 
 	// Setting Up Repositories
 	userR := repository.NewUserRepository(db)
-	filmR := repository.NewFilmRepository(db)	areaR := repository.NewAreaRepository(db)
+	filmR := repository.NewFilmRepository(db)
+	areaR := repository.NewAreaRepository(db)
 
 	// Setting Up Services
 	userS := service.NewUserService(userR)
@@ -51,7 +52,8 @@ func main() {
 
 	// Setting Up Routes
 	routes.UserRoutes(server, userC)
-	routes.FilmRoutes(server,filmC)	routes.AreaRoutes(server, areaC)
+	routes.FilmRoutes(server,filmC)
+	routes.AreaRoutes(server, areaC)
 
 	// Running in localhost:8080
 	port := os.Getenv("PORT")
