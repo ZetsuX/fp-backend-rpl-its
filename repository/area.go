@@ -22,6 +22,7 @@ type AreaRepository interface {
 	GetAreaByName(ctx context.Context, tx *gorm.DB, name string) (entity.Area, error)
 	CreateNewArea(ctx context.Context, tx *gorm.DB, area entity.Area) (entity.Area, error)
 	GetAllAreas(ctx context.Context, tx *gorm.DB) ([]entity.Area, error)
+	GetAreaByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Area, error)
 }
 
 func NewAreaRepository(db *gorm.DB) *areaRepository {
@@ -94,4 +95,20 @@ func (areaR *areaRepository) GetAllAreas(ctx context.Context, tx *gorm.DB) ([]en
 		return areas, err
 	}
 	return areas, nil
+}
+
+func (areaR *areaRepository) GetAreaByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Area, error) {
+	var err error
+	var area entity.Area
+	if tx == nil {
+		tx = areaR.db.WithContext(ctx).Debug().Where("id = $1", id).Preload("Sessions").Take(&area)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Where("id = $1", id).Preload("Sessions").Take(&area).Error
+	}
+
+	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
+		return area, err
+	}
+	return area, nil
 }
