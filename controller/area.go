@@ -22,6 +22,7 @@ type AreaController interface {
 	GetAllAreas(ctx *gin.Context)
 	GetAreaByID(ctx *gin.Context)
 	UpdateAreaByID(ctx *gin.Context)
+	DeleteAreaByID(ctx *gin.Context)
 }
 
 func NewAreaController(areaS service.AreaService, jwtS service.JWTService) AreaController {
@@ -166,5 +167,37 @@ func (areaC *areaController) UpdateAreaByID(ctx *gin.Context) {
 	} else {
 		resp = common.CreateSuccessResponse("successfully updated area", http.StatusOK, area)
 	}
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (areaC *areaController) DeleteAreaByID(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process id of delete area request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	area, err := areaC.areaService.GetAreaByID(ctx, id)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process area delete request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if reflect.DeepEqual(area, entity.Area{}) {
+		resp := common.CreateFailResponse("area with given id not found", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	err = areaC.areaService.DeleteAreaByID(ctx, id)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process area delete request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	resp := common.CreateSuccessResponse("successfully deleted area", http.StatusOK, nil)
 	ctx.JSON(http.StatusOK, resp)
 }
