@@ -39,7 +39,7 @@ func main() {
 
 	// Setting Up Controllers
 	userC := controller.NewUserController(userS, jwtS)
-	filmC := controller.NewfilmController(filmS,jwtS)
+	filmC := controller.NewFilmController(filmS)
 	areaC := controller.NewAreaController(areaS)
 
 	defer config.DBClose(db)

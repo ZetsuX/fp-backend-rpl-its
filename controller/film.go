@@ -13,7 +13,6 @@ import (
 
 type filmController struct {
 	filmService service.FilmService
-	jwtService  service.JWTService
 }
 
 type FilmController interface {
@@ -25,11 +24,8 @@ type FilmController interface {
 	GetAllFilmsAvailable(ctx *gin.Context)
 }
 
-func NewfilmController(filmS service.FilmService, jwtS service.JWTService) FilmController {
-	return &filmController{
-		filmService: filmS,
-		jwtService:  jwtS,
-	}
+func NewFilmController(filmS service.FilmService) FilmController {
+	return &filmController{filmService: filmS}
 }
 func (fc *filmController) CreateFilm(ctx *gin.Context) {
 	var filmDTO dto.FilmRegisterRequest

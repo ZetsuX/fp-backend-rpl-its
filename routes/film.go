@@ -9,13 +9,13 @@ import (
 )
 
 func FilmRoutes(router *gin.Engine, filmC controller.FilmController) {
-	filmRoutes := router.Group("/api/v1/movie")
+	filmRoutes := router.Group("/api/v1/film")
 	{
-		filmRoutes.POST("/", middleware.Authenticate(service.NewJWTService(), "user"), filmC.CreateFilm)
+		filmRoutes.POST("/", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.CreateFilm)
 		filmRoutes.GET("/", filmC.GetAllFilmsAvailable)
-		filmRoutes.GET("/all", middleware.Authenticate(service.NewJWTService(), "user"), filmC.GetAllFilms)
-		filmRoutes.PUT("/:slug", middleware.Authenticate(service.NewJWTService(), "user"), filmC.UpdateFilm)
-		filmRoutes.GET("/:slug", middleware.Authenticate(service.NewJWTService(), "user"), filmC.GetFilmDetailBySlug)
-		filmRoutes.DELETE("/:slug", middleware.Authenticate(service.NewJWTService(), "user"), filmC.DeleteFilm)
+		filmRoutes.GET("/all", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.GetAllFilms)
+		filmRoutes.PUT("/:slug", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.UpdateFilm)
+		filmRoutes.GET("/:slug", filmC.GetFilmDetailBySlug)
+		filmRoutes.DELETE("/:slug", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.DeleteFilm)
 	}
 }
