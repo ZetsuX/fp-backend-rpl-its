@@ -20,8 +20,10 @@ type SessionRepository interface {
 
 	// functional
 	GetSessionByTimeAndAreaID(ctx context.Context, tx *gorm.DB, time string, areaID uint64) (entity.Session, error)
+	GetSessionByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Session, error)
 	CreateNewSession(ctx context.Context, tx *gorm.DB, session entity.Session) (entity.Session, error)
 	GetAllSessions(ctx context.Context, tx *gorm.DB) ([]entity.Session, error)
+	DeleteSessionByID(ctx context.Context, tx *gorm.DB, id uint64) error
 }
 
 func NewSessionRepository(db *gorm.DB) *sessionRepository {
@@ -64,6 +66,22 @@ func (sessionR *sessionRepository) GetSessionByTimeAndAreaID(ctx context.Context
 	return session, nil
 }
 
+func (sessionR *sessionRepository) GetSessionByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Session, error) {
+	var err error
+	var session entity.Session
+	if tx == nil {
+		tx = sessionR.db.WithContext(ctx).Debug().Where("id = $1", id).Take(&session)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Where("id = $1", id).Take(&session).Error
+	}
+
+	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
+		return session, err
+	}
+	return session, nil
+}
+
 func (sessionR *sessionRepository) CreateNewSession(ctx context.Context, tx *gorm.DB, session entity.Session) (entity.Session, error) {
 	var err error
 	if tx == nil {
@@ -94,4 +112,19 @@ func (sessionR *sessionRepository) GetAllSessions(ctx context.Context, tx *gorm.
 		return sessions, err
 	}
 	return sessions, nil
+}
+
+func (sessionR *sessionRepository) DeleteSessionByID(ctx context.Context, tx *gorm.DB, id uint64) error {
+	var err error
+	if tx == nil {
+		tx = sessionR.db.WithContext(ctx).Debug().Delete(&entity.Session{}, id)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Delete(&entity.Session{}, id).Error
+	}
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

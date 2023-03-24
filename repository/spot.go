@@ -19,6 +19,7 @@ type SpotRepository interface {
 
 	// functional
 	CreateNewSpot(ctx context.Context, tx *gorm.DB, spot entity.Spot) (entity.Spot, error)
+	DeleteSpotsBySessionID(ctx context.Context, tx *gorm.DB, spotID uint64) error
 }
 
 func NewSpotRepository(db *gorm.DB) *spotRepository {
@@ -58,4 +59,19 @@ func (spotR *spotRepository) CreateNewSpot(ctx context.Context, tx *gorm.DB, spo
 		return entity.Spot{}, err
 	}
 	return spot, nil
+}
+
+func (spotR *spotRepository) DeleteSpotsBySessionID(ctx context.Context, tx *gorm.DB, spotID uint64) error {
+	var err error
+	if tx == nil {
+		tx = spotR.db.WithContext(ctx).Debug().Where("session_id = $1", spotID).Unscoped().Delete(&entity.Spot{})
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Where("session_id = $1", spotID).Unscoped().Delete(&entity.Spot{}).Error
+	}
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
