@@ -13,5 +13,6 @@ func AreaRoutes(router *gin.Engine, areaC controller.AreaController) {
 		areaRoutes.GET("/", areaC.GetAllAreas)
 		areaRoutes.GET("/:id", areaC.GetAreaByID)
 		areaRoutes.PUT("/:id", areaC.UpdateAreaByID)
+		areaRoutes.DELETE("/:id", areaC.DeleteAreaByID)
 	}
 }

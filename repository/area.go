@@ -26,6 +26,7 @@ type AreaRepository interface {
 	GetAllAreas(ctx context.Context, tx *gorm.DB) ([]entity.Area, error)
 	GetAreaByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Area, error)
 	UpdateArea(ctx context.Context, tx *gorm.DB, areaDTO dto.AreaCreateRequest, area entity.Area) (entity.Area, error)
+	DeleteAreaByID(ctx context.Context, tx *gorm.DB, id uint64) error
 }
 
 func NewAreaRepository(db *gorm.DB) *areaRepository {
@@ -132,4 +133,19 @@ func (areaR *areaRepository) UpdateArea(ctx context.Context, tx *gorm.DB, areaDT
 		return areaUpdate, err
 	}
 	return areaUpdate, nil
+}
+
+func (areaR *areaRepository) DeleteAreaByID(ctx context.Context, tx *gorm.DB, id uint64) error {
+	var err error
+	if tx == nil {
+		tx = areaR.db.WithContext(ctx).Debug().Delete(&entity.Area{}, id)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Delete(&entity.Area{}, id).Error
+	}
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
