@@ -23,8 +23,11 @@ type FilmRepository interface {
 	CreateNewFilm(ctx context.Context, tx *gorm.DB, user entity.Film) (entity.Film, error)
 	GetAllFilms(ctx context.Context, tx *gorm.DB) ([]entity.Film, error)
 	GetFilmBySlug(ctx context.Context, tx *gorm.DB, slug string) (entity.Film, error)
+	GetFilmDetailBySlug(ctx context.Context, tx *gorm.DB, slug string) (entity.Film, error)
 	UpdateFilmBySlug(ctx context.Context, tx *gorm.DB, slug string, filmDTO dto.FilmUpdateRequest) (dto.FilmUpdateRequest, error)
+	DeleteFilm(ctx context.Context, tx *gorm.DB, slug string) error
 }
+
 func NewFilmRepository(db *gorm.DB) FilmRepository {
 	return &filmRepository{db: db}
 }
@@ -79,6 +82,7 @@ func (filmR *filmRepository) GetAllFilms(ctx context.Context, tx *gorm.DB) ([]en
 	}
 	return films, nil
 }
+
 func (filmR *filmRepository) GetFilmBySlug(ctx context.Context, tx *gorm.DB, slug string) (entity.Film, error) {
 	var err error
 	var film entity.Film
@@ -94,34 +98,65 @@ func (filmR *filmRepository) GetFilmBySlug(ctx context.Context, tx *gorm.DB, slu
 	}
 	return film, nil
 }
+
+func (filmR *filmRepository) GetFilmDetailBySlug(ctx context.Context, tx *gorm.DB, slug string) (entity.Film, error) {
+	var err error
+	var film entity.Film
+	if tx == nil {
+		tx = filmR.db.WithContext(ctx).Debug().Where("slug = $1", slug).Preload("Sessions").Take(&film)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Where("slug = $1", slug).Preload("Sessions").Take(&film).Error
+	}
+
+	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
+		return film, err
+	}
+	return film, nil
+}
+
 func (filmR *filmRepository) UpdateFilmBySlug(ctx context.Context, tx *gorm.DB, slug string, filmDTO dto.FilmUpdateRequest) (dto.FilmUpdateRequest, error) {
-    var err error
-    film := &entity.Film{
-        Title:      filmDTO.Title,
-        Slug:       slug,
-        Synopsis:   filmDTO.Synopsis,
-        Duration:   filmDTO.Duration,
-        Genre:      filmDTO.Genre,
-        Producer:   filmDTO.Producer,
-        Director:   filmDTO.Director,
-        Writer:     filmDTO.Writer,
-        Production: filmDTO.Production,
-        Cast:       filmDTO.Cast,
-        Trailer:    filmDTO.Trailer,
-        Image:      filmDTO.Image,
-        Status:     filmDTO.Status,
-    }
+	var err error
+	film := &entity.Film{
+		Title:      filmDTO.Title,
+		Slug:       slug,
+		Synopsis:   filmDTO.Synopsis,
+		Duration:   filmDTO.Duration,
+		Genre:      filmDTO.Genre,
+		Producer:   filmDTO.Producer,
+		Director:   filmDTO.Director,
+		Writer:     filmDTO.Writer,
+		Production: filmDTO.Production,
+		Cast:       filmDTO.Cast,
+		Trailer:    filmDTO.Trailer,
+		Image:      filmDTO.Image,
+		Status:     filmDTO.Status,
+	}
 
-    if tx == nil {
-        tx = filmR.db.WithContext(ctx).Debug()
-    }
-    
-    tx = tx.Model(entity.Film{}).Where("slug = ?", slug).Save(film)
-    err = tx.Error
+	if tx == nil {
+		tx = filmR.db.WithContext(ctx).Debug()
+	}
 
-    if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
-        return filmDTO, err
-    }
+	tx = tx.Model(entity.Film{}).Where("slug = ?", slug).Save(film)
+	err = tx.Error
 
-    return filmDTO, nil
+	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
+		return filmDTO, err
+	}
+
+	return filmDTO, nil
+}
+
+func (filmR *filmRepository) DeleteFilm(ctx context.Context, tx *gorm.DB, slug string) error {
+	var err error
+	if tx == nil {
+		tx = filmR.db.WithContext(ctx).Debug().Where("slug = ?", slug).Delete(&entity.Film{})
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Where("slug = ?", slug).Delete(&entity.Film{}).Error
+	}
+	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
+		return err
+	}
+	return nil
 }
