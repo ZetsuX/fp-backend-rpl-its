@@ -37,7 +37,7 @@ func main() {
 
 	// Setting Up Controllers
 	userC := controller.NewUserController(userS, jwtS)
-	areaC := controller.NewAreaController(areaS, jwtS)
+	areaC := controller.NewAreaController(areaS)
 
 	defer config.DBClose(db)
 

@@ -14,7 +14,6 @@ import (
 
 type areaController struct {
 	areaService service.AreaService
-	jwtService  service.JWTService
 }
 
 type AreaController interface {
@@ -25,11 +24,8 @@ type AreaController interface {
 	DeleteAreaByID(ctx *gin.Context)
 }
 
-func NewAreaController(areaS service.AreaService, jwtS service.JWTService) AreaController {
-	return &areaController{
-		areaService: areaS,
-		jwtService:  jwtS,
-	}
+func NewAreaController(areaS service.AreaService) AreaController {
+	return &areaController{areaService: areaS}
 }
 
 func (areaC *areaController) CreateArea(ctx *gin.Context) {
@@ -37,6 +33,16 @@ func (areaC *areaController) CreateArea(ctx *gin.Context) {
 	err := ctx.ShouldBind(&areaDTO)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to process area create request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if areaDTO.SpotCount <= 0 || areaDTO.SpotPerRow <= 0 {
+		resp := common.CreateFailResponse("entered value invalid", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	} else if areaDTO.SpotCount < areaDTO.SpotPerRow {
+		resp := common.CreateFailResponse("entered spot count is less than spot per row", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -120,6 +126,16 @@ func (areaC *areaController) UpdateAreaByID(ctx *gin.Context) {
 	err = ctx.ShouldBind(&areaDTO)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to process area update request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if areaDTO.SpotCount <= 0 || areaDTO.SpotPerRow <= 0 {
+		resp := common.CreateFailResponse("entered value invalid", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	} else if areaDTO.SpotCount < areaDTO.SpotPerRow {
+		resp := common.CreateFailResponse("entered spot count is less than spot per row", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}

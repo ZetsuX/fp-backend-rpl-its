@@ -2,6 +2,8 @@ package routes
 
 import (
 	"fp-rpl/controller"
+	"fp-rpl/middleware"
+	"fp-rpl/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,10 +11,10 @@ import (
 func AreaRoutes(router *gin.Engine, areaC controller.AreaController) {
 	areaRoutes := router.Group("/api/v1/area")
 	{
-		areaRoutes.POST("/", areaC.CreateArea)
+		areaRoutes.POST("/", middleware.Authenticate(service.NewJWTService(), "admin"), areaC.CreateArea)
 		areaRoutes.GET("/", areaC.GetAllAreas)
-		areaRoutes.GET("/:id", areaC.GetAreaByID)
-		areaRoutes.PUT("/:id", areaC.UpdateAreaByID)
-		areaRoutes.DELETE("/:id", areaC.DeleteAreaByID)
+		areaRoutes.GET("/:id", middleware.Authenticate(service.NewJWTService(), "admin"), areaC.GetAreaByID)
+		areaRoutes.PUT("/:id", middleware.Authenticate(service.NewJWTService(), "admin"), areaC.UpdateAreaByID)
+		areaRoutes.DELETE("/:id", middleware.Authenticate(service.NewJWTService(), "admin"), areaC.DeleteAreaByID)
 	}
 }
