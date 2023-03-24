@@ -14,7 +14,6 @@ import (
 
 type areaController struct {
 	areaService service.AreaService
-	jwtService  service.JWTService
 }
 
 type AreaController interface {
@@ -25,11 +24,8 @@ type AreaController interface {
 	DeleteAreaByID(ctx *gin.Context)
 }
 
-func NewAreaController(areaS service.AreaService, jwtS service.JWTService) AreaController {
-	return &areaController{
-		areaService: areaS,
-		jwtService:  jwtS,
-	}
+func NewAreaController(areaS service.AreaService) AreaController {
+	return &areaController{areaService: areaS}
 }
 
 func (areaC *areaController) CreateArea(ctx *gin.Context) {
