@@ -19,13 +19,15 @@ type filmController struct {
 type FilmController interface {
 	CreateFilm(ctx *gin.Context)
 	GetAllFilms(ctx *gin.Context)
+	GetFilmDetailBySlug(ctx *gin.Context)
 	UpdateFilm(ctx *gin.Context)
+	DeleteFilm(ctx *gin.Context)
 }
 
 func NewfilmController(filmS service.FilmService, jwtS service.JWTService) FilmController {
 	return &filmController{
 		filmService: filmS,
-		jwtService: jwtS,
+		jwtService:  jwtS,
 	}
 }
 func (fc *filmController) CreateFilm(ctx *gin.Context) {
@@ -36,7 +38,7 @@ func (fc *filmController) CreateFilm(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	filmCheck, er := fc.filmService.GetFilmBySlug(ctx,filmDTO.Slug)
+	filmCheck, er := fc.filmService.GetFilmBySlug(ctx, filmDTO.Slug)
 	if er != nil {
 		resp := common.CreateFailResponse("failed to process create film request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
@@ -47,7 +49,7 @@ func (fc *filmController) CreateFilm(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	newFilm, err :=fc.filmService.CreateNewFilm(ctx,filmDTO)
+	newFilm, err := fc.filmService.CreateNewFilm(ctx, filmDTO)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to process create film request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
@@ -66,21 +68,44 @@ func (fc *filmController) GetAllFilms(ctx *gin.Context) {
 	resp := common.CreateSuccessResponse("Get film success", http.StatusCreated, films)
 	ctx.JSON(http.StatusCreated, resp)
 }
-func (fc *filmController) UpdateFilm(ctx *gin.Context)  {
+func (fc *filmController) GetFilmDetailBySlug(ctx *gin.Context) {
+	slug := ctx.Param("slug")
+	film, err := fc.filmService.GetFilmDetailBySlug(ctx, slug)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to get film detail", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+	resp := common.CreateSuccessResponse("Get film detail success", http.StatusCreated, film)
+	ctx.JSON(http.StatusCreated, resp)
+}
+func (fc *filmController) UpdateFilm(ctx *gin.Context) {
 	slug := ctx.Param("slug")
 	var filmDTO dto.FilmUpdateRequest
 	err := ctx.ShouldBind(&filmDTO)
-	if  err != nil {
+	if err != nil {
 		resp := common.CreateFailResponse("failed to update film", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	updatedFilm,err := fc.filmService.UpdateFilm(ctx,filmDTO, slug)
-	if err != nil{
+	updatedFilm, err := fc.filmService.UpdateFilm(ctx, filmDTO, slug)
+	if err != nil {
 		resp := common.CreateFailResponse("failed to update film", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
 	resp := common.CreateSuccessResponse("update film success", http.StatusCreated, updatedFilm)
+	ctx.JSON(http.StatusCreated, resp)
+}
+
+func (fc *filmController) DeleteFilm(ctx *gin.Context) {
+	slug := ctx.Param("slug")
+	err := fc.filmService.DeleteFilm(ctx, slug)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to delete film", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+	resp := common.CreateSuccessResponse("delete film success", http.StatusCreated, nil)
 	ctx.JSON(http.StatusCreated, resp)
 }

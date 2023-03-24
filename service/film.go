@@ -16,44 +16,62 @@ type filmService struct {
 type FilmService interface {
 	CreateNewFilm(ctx context.Context, filmDTO dto.FilmRegisterRequest) (entity.Film, error)
 	GetFilmBySlug(ctx context.Context, slug string) (entity.Film, error)
+	GetFilmDetailBySlug(ctx context.Context, slug string) (entity.Film, error)
 	GetAllFilm(ctx context.Context) ([]entity.Film, error)
-	UpdateFilm(ctx context.Context,filmDTO dto.FilmUpdateRequest, slug string) (dto.FilmUpdateRequest, error)
+	UpdateFilm(ctx context.Context, filmDTO dto.FilmUpdateRequest, slug string) (dto.FilmUpdateRequest, error)
+	DeleteFilm(ctx context.Context, slug string) error
 }
 
 func NewFilmService(filmR repository.FilmRepository) FilmService {
 	return &filmService{filmRepository: filmR}
 }
-func (fs *filmService) CreateNewFilm(ctx context.Context, filmDTO dto.FilmRegisterRequest) (entity.Film, error){
+func (fs *filmService) CreateNewFilm(ctx context.Context, filmDTO dto.FilmRegisterRequest) (entity.Film, error) {
 	filmDTO.Status = "Now playing"
 	var film entity.Film
-	copier.Copy(&film,&filmDTO)
+	copier.Copy(&film, &filmDTO)
 
-	NewFilm, err := fs.filmRepository.CreateNewFilm(ctx,nil,film)
-	if err != nil{
-		return entity.Film{},err
+	NewFilm, err := fs.filmRepository.CreateNewFilm(ctx, nil, film)
+	if err != nil {
+		return entity.Film{}, err
 	}
-	return NewFilm,nil
+	return NewFilm, nil
 }
-func (fs *filmService) GetFilmBySlug(ctx context.Context, slug string ) (entity.Film, error){
-	film, err := fs.filmRepository.GetFilmBySlug(ctx,nil,slug)
-	if err != nil{
-		return entity.Film{},err
+func (fs *filmService) GetFilmBySlug(ctx context.Context, slug string) (entity.Film, error) {
+	film, err := fs.filmRepository.GetFilmBySlug(ctx, nil, slug)
+	if err != nil {
+		return entity.Film{}, err
 	}
-	return film,nil
-}
-
-func (fs *filmService) GetAllFilm(ctx context.Context) ([]entity.Film, error){
-	films, err := fs.filmRepository.GetAllFilms(ctx,nil)
-	if err != nil{
-		return []entity.Film{},err
-	}
-	return films,nil
+	return film, nil
 }
 
-func (fs *filmService) UpdateFilm(ctx context.Context,filmDTO dto.FilmUpdateRequest, slug string) (dto.FilmUpdateRequest, error){
-	film, err := fs.filmRepository.UpdateFilmBySlug(ctx,nil,slug,filmDTO)
-	if err != nil{
-		return dto.FilmUpdateRequest{},err
+func (fs *filmService) GetFilmDetailBySlug(ctx context.Context, slug string) (entity.Film, error) {
+	film, err := fs.filmRepository.GetFilmDetailBySlug(ctx, nil, slug)
+	if err != nil {
+		return entity.Film{}, err
 	}
-	return film,nil
+	return film, nil
+}
+
+func (fs *filmService) GetAllFilm(ctx context.Context) ([]entity.Film, error) {
+	films, err := fs.filmRepository.GetAllFilms(ctx, nil)
+	if err != nil {
+		return []entity.Film{}, err
+	}
+	return films, nil
+}
+
+func (fs *filmService) UpdateFilm(ctx context.Context, filmDTO dto.FilmUpdateRequest, slug string) (dto.FilmUpdateRequest, error) {
+	film, err := fs.filmRepository.UpdateFilmBySlug(ctx, nil, slug, filmDTO)
+	if err != nil {
+		return dto.FilmUpdateRequest{}, err
+	}
+	return film, nil
+}
+
+func (fs *filmService) DeleteFilm(ctx context.Context, slug string) error {
+	err := fs.filmRepository.DeleteFilm(ctx, nil, slug)
+	if err != nil {
+		return err
+	}
+	return nil
 }
