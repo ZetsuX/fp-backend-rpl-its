@@ -4,7 +4,7 @@ import "fp-rpl/common"
 
 type Session struct {
 	common.Model
-	Time         string        `json:"time" binding:"required"`
+	Time         string        `gorm:"type:time" json:"time" binding:"required"`
 	Price        float64       `json:"price" binding:"required"`
 	Transactions []Transaction `json:"transaction,omitempty"`
 	Spots        []Spot        `json:"spot,omitempty"`
