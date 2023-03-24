@@ -18,6 +18,7 @@ type AreaService interface {
 	CreateNewArea(ctx context.Context, areaDTO dto.AreaCreateRequest) (entity.Area, error)
 	GetAllAreas(ctx context.Context) ([]entity.Area, error)
 	GetAreaByID(ctx context.Context, id uint64) (entity.Area, error)
+	UpdateArea(ctx context.Context, areaDTO dto.AreaCreateRequest, area entity.Area) (entity.Area, error)
 }
 
 func NewAreaService(areaR repository.AreaRepository) AreaService {
@@ -55,6 +56,14 @@ func (areaS *areaService) GetAllAreas(ctx context.Context) ([]entity.Area, error
 
 func (areaS *areaService) GetAreaByID(ctx context.Context, id uint64) (entity.Area, error) {
 	area, err := areaS.areaRepository.GetAreaByID(ctx, nil, id)
+	if err != nil {
+		return entity.Area{}, err
+	}
+	return area, nil
+}
+
+func (areaS *areaService) UpdateArea(ctx context.Context, areaDTO dto.AreaCreateRequest, area entity.Area) (entity.Area, error) {
+	area, err := areaS.areaRepository.UpdateArea(ctx, nil, areaDTO, area)
 	if err != nil {
 		return entity.Area{}, err
 	}
