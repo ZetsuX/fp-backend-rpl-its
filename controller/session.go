@@ -7,6 +7,7 @@ import (
 	"fp-rpl/service"
 	"net/http"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,7 @@ type SessionController interface {
 	CreateSession(ctx *gin.Context)
 	GetAllSessions(ctx *gin.Context)
 	GetSessionsByFilmSlug(ctx *gin.Context)
+	DeleteSessionByID(ctx *gin.Context)
 }
 
 func NewSessionController(sessionS service.SessionService, areaS service.AreaService, filmS service.FilmService) SessionController {
@@ -136,5 +138,37 @@ func (sessionC *sessionController) GetSessionsByFilmSlug(ctx *gin.Context) {
 	}
 
 	resp := common.CreateSuccessResponse("successfully fetched sessions", http.StatusOK, film.Sessions)
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (sessionC *sessionController) DeleteSessionByID(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process id of delete session request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	session, err := sessionC.sessionService.GetSessionByID(ctx, id)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process session delete request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if reflect.DeepEqual(session, entity.Session{}) {
+		resp := common.CreateFailResponse("session with given id not found", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	err = sessionC.sessionService.DeleteSessionByID(ctx, id)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process session delete request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	resp := common.CreateSuccessResponse("successfully deleted session", http.StatusOK, nil)
 	ctx.JSON(http.StatusOK, resp)
 }

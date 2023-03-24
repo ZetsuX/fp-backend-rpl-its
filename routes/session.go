@@ -14,5 +14,6 @@ func SessionRoutes(router *gin.Engine, sessionC controller.SessionController) {
 		sessionRoutes.POST("/",  middleware.Authenticate(service.NewJWTService(), "admin"), sessionC.CreateSession)
 		sessionRoutes.GET("/",  middleware.Authenticate(service.NewJWTService(), "admin"), sessionC.GetAllSessions)
 		sessionRoutes.GET("/:filmslug", sessionC.GetSessionsByFilmSlug)
+		sessionRoutes.DELETE("/:id", middleware.Authenticate(service.NewJWTService(), "admin"), sessionC.DeleteSessionByID)
 	}
 }

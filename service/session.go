@@ -17,8 +17,10 @@ type sessionService struct {
 
 type SessionService interface {
 	GetSessionByTimeAndPlace(ctx context.Context, sessionDTO dto.SessionCreateRequest) (entity.Session, error)
+	GetSessionByID(ctx context.Context, id uint64) (entity.Session, error)
 	CreateNewSession(ctx context.Context, sessionDTO dto.SessionCreateRequest, spotCount int, spotPerRow int) (entity.Session, error)
 	GetAllSessions(ctx context.Context) ([]entity.Session, error)
+	DeleteSessionByID(ctx context.Context, id uint64) error
 }
 
 func NewSessionService(sessionR repository.SessionRepository, spotR repository.SpotRepository) SessionService {
@@ -30,6 +32,14 @@ func NewSessionService(sessionR repository.SessionRepository, spotR repository.S
 
 func (sessionS *sessionService) GetSessionByTimeAndPlace(ctx context.Context, sessionDTO dto.SessionCreateRequest) (entity.Session, error) {
 	session, err := sessionS.sessionRepository.GetSessionByTimeAndAreaID(ctx, nil, sessionDTO.Time, sessionDTO.AreaID)
+	if err != nil {
+		return entity.Session{}, err
+	}
+	return session, nil
+}
+
+func (sessionS *sessionService) GetSessionByID(ctx context.Context, id uint64) (entity.Session, error) {
+	session, err := sessionS.sessionRepository.GetSessionByID(ctx, nil, id)
 	if err != nil {
 		return entity.Session{}, err
 	}
@@ -76,4 +86,18 @@ func (sessionS *sessionService) GetAllSessions(ctx context.Context) ([]entity.Se
 		return []entity.Session{}, err
 	}
 	return sessions, nil
+}
+
+func (sessionS *sessionService) DeleteSessionByID(ctx context.Context, id uint64) error {
+	err := sessionS.sessionRepository.DeleteSessionByID(ctx, nil, id)
+	if err != nil {
+		return err
+	}
+
+	err = sessionS.spotRepository.DeleteSpotsBySessionID(ctx, nil, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
