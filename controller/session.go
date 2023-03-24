@@ -21,6 +21,7 @@ type sessionController struct {
 type SessionController interface {
 	CreateSession(ctx *gin.Context)
 	GetAllSessions(ctx *gin.Context)
+	GetSessionsByFilmSlug(ctx *gin.Context)
 }
 
 func NewSessionController(sessionS service.SessionService, areaS service.AreaService, filmS service.FilmService) SessionController {
@@ -121,5 +122,19 @@ func (sessionC *sessionController) GetAllSessions(ctx *gin.Context) {
 	} else {
 		resp = common.CreateSuccessResponse("successfully fetched all sessions", http.StatusOK, sessions)
 	}
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (sessionC *sessionController) GetSessionsByFilmSlug(ctx *gin.Context) {
+	filmSlug := ctx.Param("filmslug")
+
+	film, err := sessionC.filmService.GetFilmDetailBySlug(ctx, filmSlug)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to get film", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	resp := common.CreateSuccessResponse("successfully fetched sessions", http.StatusOK, film.Sessions)
 	ctx.JSON(http.StatusOK, resp)
 }
