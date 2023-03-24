@@ -7,6 +7,7 @@ import (
 	"fp-rpl/service"
 	"net/http"
 	"reflect"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +20,7 @@ type areaController struct {
 type AreaController interface {
 	CreateArea(ctx *gin.Context)
 	GetAllAreas(ctx *gin.Context)
+	GetAreaByID(ctx *gin.Context)
 }
 
 func NewAreaController(areaS service.AreaService, jwtS service.JWTService) AreaController {
@@ -76,6 +78,30 @@ func (areaC *areaController) GetAllAreas(ctx *gin.Context) {
 		resp = common.CreateSuccessResponse("no area found", http.StatusOK, areas)
 	} else {
 		resp = common.CreateSuccessResponse("successfully fetched all areas", http.StatusOK, areas)
+	}
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (areaC *areaController) GetAreaByID(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	if err != nil {
+		resp := common.CreateFailResponse("Failed to process id of get area request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	area, err := areaC.areaService.GetAreaByID(ctx, id)
+	if err != nil {
+		resp := common.CreateFailResponse(err.Error(), http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var resp common.Response
+	if reflect.DeepEqual(area, entity.Area{}) {
+		resp = common.CreateSuccessResponse("area not found", http.StatusOK, nil)
+	} else {
+		resp = common.CreateSuccessResponse("successfully fetched area", http.StatusOK, area)
 	}
 	ctx.JSON(http.StatusOK, resp)
 }
