@@ -7,6 +7,7 @@ import (
 	"fp-rpl/service"
 	"net/http"
 	"reflect"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +15,7 @@ import (
 type sessionController struct {
 	sessionService service.SessionService
 	areaService service.AreaService
-	// filmService service.FilmService
+	filmService service.FilmService
 }
 
 type SessionController interface {
@@ -22,10 +23,11 @@ type SessionController interface {
 	GetAllSessions(ctx *gin.Context)
 }
 
-func NewSessionController(sessionS service.SessionService, areaS service.AreaService) SessionController {
+func NewSessionController(sessionS service.SessionService, areaS service.AreaService, filmS service.FilmService) SessionController {
 	return &sessionController{
 		sessionService: sessionS,
 		areaService: areaS,
+		filmService: filmS,
 	}
 }
 
@@ -38,7 +40,20 @@ func (sessionC *sessionController) CreateSession(ctx *gin.Context) {
 		return
 	}
 
-	// Check for duplicate Sessionname or Email
+	checkTime, err := time.Parse(time.RFC3339, sessionDTO.Time)
+    if err != nil {
+        resp := common.CreateFailResponse("failed to process session time", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+    }
+
+	if checkTime.Before(time.Now()) {
+		resp := common.CreateFailResponse("invalid session time", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	// Check for duplicate Session
 	sessionCheck, err := sessionC.sessionService.GetSessionByTimeAndPlace(ctx, sessionDTO)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to process session create request", http.StatusBadRequest)
@@ -54,6 +69,18 @@ func (sessionC *sessionController) CreateSession(ctx *gin.Context) {
 	}
 
 	// Check Film by ID
+	film, err := sessionC.filmService.GetFilmByID(ctx, sessionDTO.FilmID)
+	if err != nil {
+		resp := common.CreateFailResponse(err.Error(), http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if reflect.DeepEqual(film, entity.Film{}) {
+		resp := common.CreateFailResponse("film not found", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
 
 	// Check Area by ID
 	area, err := sessionC.areaService.GetAreaByID(ctx, sessionDTO.AreaID)

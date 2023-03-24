@@ -52,10 +52,10 @@ func (sessionR *sessionRepository) GetSessionByTimeAndAreaID(ctx context.Context
 	var err error
 	var session entity.Session
 	if tx == nil {
-		tx = sessionR.db.WithContext(ctx).Debug().Where("time = $1 OR area_id = $2", time, areaID).Take(&session)
+		tx = sessionR.db.WithContext(ctx).Debug().Where("time = $1 AND area_id = $2", time, areaID).Take(&session)
 		err = tx.Error
 	} else {
-		err = tx.WithContext(ctx).Debug().Where("time = $1 OR area_id = $2", time, areaID).Take(&session).Error
+		err = tx.WithContext(ctx).Debug().Where("time = $1 AND area_id = $2", time, areaID).Take(&session).Error
 	}
 
 	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {

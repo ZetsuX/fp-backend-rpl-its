@@ -44,7 +44,7 @@ func main() {
 	userC := controller.NewUserController(userS, jwtS)
 	filmC := controller.NewFilmController(filmS)
 	areaC := controller.NewAreaController(areaS)
-	sessionC := controller.NewSessionController(sessionS, areaS)
+	sessionC := controller.NewSessionController(sessionS, areaS, filmS)
 
 	defer config.DBClose(db)
 
