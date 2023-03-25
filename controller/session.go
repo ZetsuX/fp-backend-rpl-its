@@ -15,8 +15,8 @@ import (
 
 type sessionController struct {
 	sessionService service.SessionService
-	areaService service.AreaService
-	filmService service.FilmService
+	areaService    service.AreaService
+	filmService    service.FilmService
 }
 
 type SessionController interface {
@@ -24,13 +24,14 @@ type SessionController interface {
 	GetAllSessions(ctx *gin.Context)
 	GetSessionsByFilmSlug(ctx *gin.Context)
 	DeleteSessionByID(ctx *gin.Context)
+	GetSessionDetailByID(ctx *gin.Context)
 }
 
 func NewSessionController(sessionS service.SessionService, areaS service.AreaService, filmS service.FilmService) SessionController {
 	return &sessionController{
 		sessionService: sessionS,
-		areaService: areaS,
-		filmService: filmS,
+		areaService:    areaS,
+		filmService:    filmS,
 	}
 }
 
@@ -44,11 +45,11 @@ func (sessionC *sessionController) CreateSession(ctx *gin.Context) {
 	}
 
 	checkTime, err := time.Parse(time.RFC3339, sessionDTO.Time)
-    if err != nil {
-        resp := common.CreateFailResponse("failed to process session time", http.StatusBadRequest)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process session time", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
-    }
+	}
 
 	if checkTime.Before(time.Now()) {
 		resp := common.CreateFailResponse("invalid session time", http.StatusBadRequest)
@@ -170,5 +171,46 @@ func (sessionC *sessionController) DeleteSessionByID(ctx *gin.Context) {
 	}
 
 	resp := common.CreateSuccessResponse("successfully deleted session", http.StatusOK, nil)
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (sessionC *sessionController) GetSessionDetailByID(ctx *gin.Context) {
+	filmSlug := ctx.Param("filmslug")
+
+	film, err := sessionC.filmService.GetFilmBySlug(ctx, filmSlug)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to get film by filmslug of get session request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process id of get session request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	session, err := sessionC.sessionService.GetSessionByID(ctx, id)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to get session by id of get session request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if film.ID != session.FilmID {
+		resp := common.CreateFailResponse("film and session not match", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	session, err = sessionC.sessionService.GetSessionDetailByID(ctx, id)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process session get request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	resp := common.CreateSuccessResponse("successfully fetched session", http.StatusOK, session)
 	ctx.JSON(http.StatusOK, resp)
 }

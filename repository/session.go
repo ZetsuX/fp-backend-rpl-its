@@ -24,6 +24,7 @@ type SessionRepository interface {
 	CreateNewSession(ctx context.Context, tx *gorm.DB, session entity.Session) (entity.Session, error)
 	GetAllSessions(ctx context.Context, tx *gorm.DB) ([]entity.Session, error)
 	DeleteSessionByID(ctx context.Context, tx *gorm.DB, id uint64) error
+	GetSessionDetailByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Session, error)
 }
 
 func NewSessionRepository(db *gorm.DB) *sessionRepository {
@@ -127,4 +128,20 @@ func (sessionR *sessionRepository) DeleteSessionByID(ctx context.Context, tx *go
 		return err
 	}
 	return nil
+}
+
+func (sessionR *sessionRepository) GetSessionDetailByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Session, error) {
+	var err error
+	var session entity.Session
+	if tx == nil {
+		tx = sessionR.db.WithContext(ctx).Debug().Where("id = $1", id).Preload("Transactions").Preload("Spots").Take(&session)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Where("id = $1", id).Preload("Transactions").Preload("Spots").Take(&session).Error
+	}
+
+	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
+		return session, err
+	}
+	return session, nil
 }
