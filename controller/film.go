@@ -107,7 +107,21 @@ func (fc *filmController) UpdateFilm(ctx *gin.Context) {
 
 func (fc *filmController) DeleteFilm(ctx *gin.Context) {
 	slug := ctx.Param("slug")
-	err := fc.filmService.DeleteFilm(ctx, slug)
+
+	film, err := fc.filmService.GetFilmBySlug(ctx, slug)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to process film delete request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if reflect.DeepEqual(film, entity.Film{}) {
+		resp := common.CreateFailResponse("film with given slug not found", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	err = fc.filmService.DeleteFilm(ctx, slug)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to delete film", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
