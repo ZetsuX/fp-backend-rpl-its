@@ -6,6 +6,7 @@ import (
 	"fp-rpl/dto"
 	"fp-rpl/entity"
 
+	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
@@ -25,7 +26,7 @@ type FilmRepository interface {
 	GetFilmBySlug(ctx context.Context, tx *gorm.DB, slug string) (entity.Film, error)
 	GetFilmByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Film, error)
 	GetFilmDetailBySlug(ctx context.Context, tx *gorm.DB, slug string) (entity.Film, error)
-	UpdateFilmBySlug(ctx context.Context, tx *gorm.DB, slug string, filmDTO dto.FilmUpdateRequest) (dto.FilmUpdateRequest, error)
+	UpdateFilmBySlug(ctx context.Context, tx *gorm.DB, filmDTO dto.FilmRegisterRequest, film entity.Film) (entity.Film, error)
 	DeleteFilm(ctx context.Context, tx *gorm.DB, slug string) error
 	GetAllFilmsByStatus(ctx context.Context, tx *gorm.DB,status string) ([]entity.Film, error)
 }
@@ -148,36 +149,23 @@ func (filmR *filmRepository) GetFilmDetailBySlug(ctx context.Context, tx *gorm.D
 	return film, nil
 }
 
-func (filmR *filmRepository) UpdateFilmBySlug(ctx context.Context, tx *gorm.DB, slug string, filmDTO dto.FilmUpdateRequest) (dto.FilmUpdateRequest, error) {
+func (filmR *filmRepository) UpdateFilmBySlug(ctx context.Context, tx *gorm.DB, filmDTO dto.FilmRegisterRequest, film entity.Film) (entity.Film, error) {
 	var err error
-	film := &entity.Film{
-		Title:      filmDTO.Title,
-		Slug:       slug,
-		Synopsis:   filmDTO.Synopsis,
-		Duration:   filmDTO.Duration,
-		Genre:      filmDTO.Genre,
-		Producer:   filmDTO.Producer,
-		Director:   filmDTO.Director,
-		Writer:     filmDTO.Writer,
-		Production: filmDTO.Production,
-		Cast:       filmDTO.Cast,
-		Trailer:    filmDTO.Trailer,
-		Image:      filmDTO.Image,
-		Status:     filmDTO.Status,
-	}
+	filmUpdate := film
+	copier.Copy(&filmUpdate,&filmDTO)
 
 	if tx == nil {
 		tx = filmR.db.WithContext(ctx).Debug()
 	}
 
-	tx = tx.Model(entity.Film{}).Where("slug = ?", slug).Save(film)
+	tx = tx.Save(&filmUpdate)
 	err = tx.Error
 
 	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
-		return filmDTO, err
+		return filmUpdate, err
 	}
 
-	return filmDTO, nil
+	return filmUpdate, nil
 }
 
 func (filmR *filmRepository) DeleteFilm(ctx context.Context, tx *gorm.DB, slug string) error {
