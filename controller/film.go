@@ -95,7 +95,7 @@ func (fc *filmController) UpdateFilm(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	
+
 	if slug != filmDTO.Slug {
 		filmCheck, err := fc.filmService.GetFilmBySlug(ctx,filmDTO.Slug)
 		if err != nil {
@@ -104,7 +104,7 @@ func (fc *filmController) UpdateFilm(ctx *gin.Context) {
 			return
 		}
 		if !(reflect.DeepEqual(filmCheck, entity.Film{})) {
-			resp := common.CreateFailResponse("slug is used", http.StatusBadRequest)
+			resp := common.CreateFailResponse("slug is already used", http.StatusBadRequest)
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 			return
 		}
