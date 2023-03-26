@@ -88,14 +88,41 @@ func (fc *filmController) GetFilmDetailBySlug(ctx *gin.Context) {
 }
 func (fc *filmController) UpdateFilm(ctx *gin.Context) {
 	slug := ctx.Param("slug")
-	var filmDTO dto.FilmUpdateRequest
+	var filmDTO dto.FilmRegisterRequest
 	err := ctx.ShouldBind(&filmDTO)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to update film", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	updatedFilm, err := fc.filmService.UpdateFilm(ctx, filmDTO, slug)
+
+	if slug != filmDTO.Slug {
+		filmCheck, err := fc.filmService.GetFilmBySlug(ctx,filmDTO.Slug)
+		if err != nil {
+			resp := common.CreateFailResponse("failed to verify update", http.StatusBadRequest)
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+			return
+		}
+		if !(reflect.DeepEqual(filmCheck, entity.Film{})) {
+			resp := common.CreateFailResponse("slug is already used", http.StatusBadRequest)
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+			return
+		}
+	}
+
+	film , err := fc.filmService.GetFilmBySlug(ctx,slug)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to update film", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+	if reflect.DeepEqual(film,entity.Film{}) {
+		resp := common.CreateFailResponse("film not found", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	updatedFilm, err := fc.filmService.UpdateFilm(ctx,filmDTO,film)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to update film", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
