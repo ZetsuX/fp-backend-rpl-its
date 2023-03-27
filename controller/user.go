@@ -64,14 +64,14 @@ func (userC *userController) Register(ctx *gin.Context) {
 		return
 	}
 
-	newUser, err := userC.userService.CreateNewUser(ctx, userDTO)
+	_, err = userC.userService.CreateNewUser(ctx, userDTO)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to process user register request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
 
-	resp := common.CreateSuccessResponse("successfully registered user", http.StatusCreated, newUser)
+	resp := common.CreateEmptySuccessResponse("successfully registered user", http.StatusCreated)
 	ctx.JSON(http.StatusCreated, resp)
 }
 

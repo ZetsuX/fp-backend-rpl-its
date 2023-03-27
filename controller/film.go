@@ -46,13 +46,13 @@ func (fc *filmController) CreateFilm(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	newFilm, err := fc.filmService.CreateNewFilm(ctx, filmDTO)
+	_, err = fc.filmService.CreateNewFilm(ctx, filmDTO)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to process create film request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	resp := common.CreateSuccessResponse("Film succesfully created", http.StatusCreated, newFilm)
+	resp := common.CreateEmptySuccessResponse("film succesfully created", http.StatusCreated)
 	ctx.JSON(http.StatusCreated, resp)
 }
 func (fc *filmController) GetAllFilms(ctx *gin.Context) {
@@ -62,7 +62,7 @@ func (fc *filmController) GetAllFilms(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	resp := common.CreateSuccessResponse("Get film success", http.StatusCreated, films)
+	resp := common.CreateSuccessResponse("get film success", http.StatusCreated, films)
 	ctx.JSON(http.StatusCreated, resp)
 }
 func (fc *filmController) GetAllFilmsAvailable(ctx *gin.Context) {
@@ -72,7 +72,7 @@ func (fc *filmController) GetAllFilmsAvailable(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	resp := common.CreateSuccessResponse("Get film success", http.StatusCreated, films)
+	resp := common.CreateSuccessResponse("get film success", http.StatusCreated, films)
 	ctx.JSON(http.StatusCreated, resp)
 }
 func (fc *filmController) GetFilmDetailBySlug(ctx *gin.Context) {
@@ -83,7 +83,7 @@ func (fc *filmController) GetFilmDetailBySlug(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	resp := common.CreateSuccessResponse("Get film detail success", http.StatusCreated, film)
+	resp := common.CreateSuccessResponse("get film detail success", http.StatusCreated, film)
 	ctx.JSON(http.StatusCreated, resp)
 }
 func (fc *filmController) UpdateFilm(ctx *gin.Context) {

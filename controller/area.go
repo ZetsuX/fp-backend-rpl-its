@@ -62,14 +62,14 @@ func (areaC *areaController) CreateArea(ctx *gin.Context) {
 		return
 	}
 
-	newArea, err := areaC.areaService.CreateNewArea(ctx, areaDTO)
+	_, err = areaC.areaService.CreateNewArea(ctx, areaDTO)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to process area create request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
 
-	resp := common.CreateSuccessResponse("successfully created area", http.StatusCreated, newArea)
+	resp := common.CreateEmptySuccessResponse("successfully created area", http.StatusCreated)
 	ctx.JSON(http.StatusCreated, resp)
 }
 

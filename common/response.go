@@ -27,6 +27,12 @@ func CreateSuccessResponse(msg string, statusCode uint, d any) Response {
 	}
 }
 
+func CreateEmptySuccessResponse(msg string, statusCode uint) Response {
+	return Response{
+		IsSuccess: true, Message: msg, Status: statusCode, Data: nil,
+	}
+}
+
 func CreateAuthResponse(token string, role string) AuthResponse {
 	return AuthResponse{
 		Token: token, Role: role,

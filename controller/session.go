@@ -100,14 +100,14 @@ func (sessionC *sessionController) CreateSession(ctx *gin.Context) {
 		return
 	}
 
-	newSession, err := sessionC.sessionService.CreateNewSession(ctx, sessionDTO, area.SpotCount, area.SpotPerRow)
+	_, err = sessionC.sessionService.CreateNewSession(ctx, sessionDTO, area.SpotCount, area.SpotPerRow)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to process session create request", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
 
-	resp := common.CreateSuccessResponse("successfully created session", http.StatusCreated, newSession)
+	resp := common.CreateEmptySuccessResponse("successfully created session", http.StatusCreated)
 	ctx.JSON(http.StatusCreated, resp)
 }
 
