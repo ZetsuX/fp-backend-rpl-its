@@ -103,10 +103,10 @@ func (userR *userRepository) GetAllUsers(ctx context.Context, tx *gorm.DB) ([]en
 	var users []entity.User
 
 	if tx == nil {
-		tx = userR.db.WithContext(ctx).Debug().Preload("Transactions").Find(&users)
+		tx = userR.db.WithContext(ctx).Debug().Find(&users)
 		err = tx.Error
 	} else {
-		err = tx.WithContext(ctx).Debug().Preload("Transactions").Find(&users).Error
+		err = tx.WithContext(ctx).Debug().Find(&users).Error
 	}
 
 	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {

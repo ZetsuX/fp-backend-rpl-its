@@ -103,10 +103,10 @@ func (sessionR *sessionRepository) GetAllSessions(ctx context.Context, tx *gorm.
 	var sessions []entity.Session
 
 	if tx == nil {
-		tx = sessionR.db.WithContext(ctx).Debug().Preload("Spots").Find(&sessions)
+		tx = sessionR.db.WithContext(ctx).Debug().Find(&sessions)
 		err = tx.Error
 	} else {
-		err = tx.WithContext(ctx).Debug().Preload("Spots").Find(&sessions).Error
+		err = tx.WithContext(ctx).Debug().Find(&sessions).Error
 	}
 
 	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
