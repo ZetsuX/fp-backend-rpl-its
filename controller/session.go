@@ -133,7 +133,13 @@ func (sessionC *sessionController) GetSessionsByFilmSlug(ctx *gin.Context) {
 
 	film, err := sessionC.filmService.GetFilmDetailBySlug(ctx, filmSlug)
 	if err != nil {
-		resp := common.CreateFailResponse("failed to get film", http.StatusBadRequest)
+		resp := common.CreateFailResponse("failed to get session", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if reflect.DeepEqual(film, entity.Film{}) {
+		resp := common.CreateFailResponse("film with given slug not found", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}

@@ -83,6 +83,13 @@ func (fc *filmController) GetFilmDetailBySlug(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
+
+	if reflect.DeepEqual(film, entity.Film{}) {
+		resp := common.CreateFailResponse("film with given slug not found", http.StatusBadRequest)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
 	resp := common.CreateSuccessResponse("get film detail success", http.StatusCreated, film)
 	ctx.JSON(http.StatusCreated, resp)
 }
