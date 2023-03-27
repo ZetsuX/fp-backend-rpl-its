@@ -190,6 +190,12 @@ func (sessionC *sessionController) GetSessionDetailByID(ctx *gin.Context) {
 		return
 	}
 
+	if reflect.DeepEqual(film, entity.Film{}) {
+		resp := common.CreateFailResponse("film with given slug not found", http.StatusBadRequest)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to process id of get session request", http.StatusBadRequest)
@@ -200,6 +206,12 @@ func (sessionC *sessionController) GetSessionDetailByID(ctx *gin.Context) {
 	session, err := sessionC.sessionService.GetSessionByID(ctx, id)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to get session by id of get session request", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if reflect.DeepEqual(session, entity.Session{}) {
+		resp := common.CreateFailResponse("session with given id not found", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
