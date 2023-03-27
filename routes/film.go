@@ -9,7 +9,7 @@ import (
 )
 
 func FilmRoutes(router *gin.Engine, filmC controller.FilmController) {
-	filmRoutes := router.Group("/api/v1/film")
+	filmRoutes := router.Group("/api/v1/films")
 	{
 		filmRoutes.POST("/", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.CreateFilm)
 		filmRoutes.GET("/", filmC.GetAllFilmsAvailable)

@@ -9,7 +9,7 @@ import (
 )
 
 func SessionRoutes(router *gin.Engine, sessionC controller.SessionController) {
-	sessionRoutes := router.Group("/api/v1/session")
+	sessionRoutes := router.Group("/api/v1/sessions")
 	{
 		sessionRoutes.POST("/", middleware.Authenticate(service.NewJWTService(), "admin"), sessionC.CreateSession)
 		sessionRoutes.GET("/", middleware.Authenticate(service.NewJWTService(), "admin"), sessionC.GetAllSessions)
