@@ -32,6 +32,7 @@ func main() {
 	areaR := repository.NewAreaRepository(db)
 	sessionR := repository.NewSessionRepository(db)
 	spotR := repository.NewSpotRepository(db)
+	transactionR := repository.NewTransactionRepository(db)
 
 	// Setting Up Services
 	userS := service.NewUserService(userR)
@@ -39,12 +40,15 @@ func main() {
 	jwtS := service.NewJWTService()
 	areaS := service.NewAreaService(areaR)
 	sessionS := service.NewSessionService(sessionR, spotR)
+	spotS := service.NewSpotService(spotR)
+	transactionS := service.NewTransactionService(transactionR)
 
 	// Setting Up Controllers
 	userC := controller.NewUserController(userS, jwtS)
 	filmC := controller.NewFilmController(filmS)
 	areaC := controller.NewAreaController(areaS)
 	sessionC := controller.NewSessionController(sessionS, areaS, filmS)
+	transactionC := controller.NewTransactionController(transactionS, sessionS, spotS)
 
 	defer config.DBClose(db)
 
@@ -59,6 +63,7 @@ func main() {
 	routes.FilmRoutes(server,filmC)
 	routes.AreaRoutes(server, areaC)
 	routes.SessionRoutes(server, sessionC)
+	routes.TransactionRoutes(server, transactionC)
 
 	// Running in localhost:8080
 	port := os.Getenv("PORT")
