@@ -46,6 +46,14 @@ func (fc *filmController) CreateFilm(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
+
+	filmDTO.Status = filmDTO.StatusCode.String()
+	if filmDTO.Status == "Unknown" {
+		resp := common.CreateFailResponse("status is invalid", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
 	_, err = fc.filmService.CreateNewFilm(ctx, filmDTO)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to process create film request", http.StatusBadRequest)
@@ -125,6 +133,13 @@ func (fc *filmController) UpdateFilm(ctx *gin.Context) {
 	}
 	if reflect.DeepEqual(film,entity.Film{}) {
 		resp := common.CreateFailResponse("film not found", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	filmDTO.Status = filmDTO.StatusCode.String()
+	if filmDTO.Status == "Unknown" {
+		resp := common.CreateFailResponse("status is invalid", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
