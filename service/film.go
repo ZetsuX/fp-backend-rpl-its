@@ -21,7 +21,7 @@ type FilmService interface {
 	GetAllFilm(ctx context.Context) ([]entity.Film, error)
 	UpdateFilm(ctx context.Context, filmDTO dto.FilmRegisterRequest, film entity.Film) (entity.Film, error)
 	DeleteFilm(ctx context.Context, slug string) error
-	GetAllFilmAvailable(ctx context.Context) ([]entity.Film, error)
+	GetAllFilmByStatus(ctx context.Context, status string) ([]entity.Film, error)
 }
 
 func NewFilmService(filmR repository.FilmRepository) FilmService {
@@ -68,8 +68,9 @@ func (fs *filmService) GetAllFilm(ctx context.Context) ([]entity.Film, error) {
 	}
 	return films, nil
 }
-func (fs *filmService) GetAllFilmAvailable(ctx context.Context) ([]entity.Film, error) {
-	films, err := fs.filmRepository.GetAllFilmsByStatus(ctx,nil,"playing")
+
+func (fs *filmService) GetAllFilmByStatus(ctx context.Context, status string) ([]entity.Film, error) {
+	films, err := fs.filmRepository.GetAllFilmsByStatus(ctx,nil,status)
 	if err != nil {
 		return []entity.Film{}, err
 	}
