@@ -12,7 +12,9 @@ func FilmRoutes(router *gin.Engine, filmC controller.FilmController) {
 	filmRoutes := router.Group("/api/v1/films")
 	{
 		filmRoutes.POST("/", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.CreateFilm)
-		filmRoutes.GET("/", filmC.GetAllFilmsAvailable)
+		filmRoutes.GET("/now-playing", filmC.GetAllFilmsNowPlaying)
+		filmRoutes.GET("/coming-soon", filmC.GetAllFilmsComingSoon)
+		filmRoutes.GET("/not-playing", filmC.GetAllFilmsNotPlaying)
 		filmRoutes.GET("/all", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.GetAllFilms)
 		filmRoutes.PUT("/:slug", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.UpdateFilm)
 		filmRoutes.GET("/:slug", filmC.GetFilmDetailBySlug)
