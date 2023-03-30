@@ -28,7 +28,6 @@ func NewFilmService(filmR repository.FilmRepository) FilmService {
 	return &filmService{filmRepository: filmR}
 }
 func (fs *filmService) CreateNewFilm(ctx context.Context, filmDTO dto.FilmRegisterRequest) (entity.Film, error) {
-	filmDTO.Status = "playing"
 	var film entity.Film
 	copier.Copy(&film, &filmDTO)
 
