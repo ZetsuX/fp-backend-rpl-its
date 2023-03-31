@@ -160,11 +160,18 @@ func (transactionC *transactionController) GetTransactionsByUsername(ctx *gin.Co
 		return
 	}
 
+	transactions, err := transactionC.transactionService.GetTransactionsByUserID(ctx, user.ID)
+	if err != nil {
+		resp := common.CreateFailResponse("failed to fetch user transactions", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
+
 	var resp common.Response
-	if len(user.Transactions) == 0 {
-		resp = common.CreateSuccessResponse("no transaction found", http.StatusOK, user.Transactions)
+	if len(transactions) == 0 {
+		resp = common.CreateSuccessResponse("no transaction found", http.StatusOK, transactions)
 	} else {
-		resp = common.CreateSuccessResponse("successfully fetched user transactions", http.StatusOK, user.Transactions)
+		resp = common.CreateSuccessResponse("successfully fetched user transactions", http.StatusOK, transactions)
 	}
 	ctx.JSON(http.StatusOK, resp)
 }
