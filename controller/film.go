@@ -23,7 +23,6 @@ type FilmController interface {
 	DeleteFilm(ctx *gin.Context)
 	GetAllFilmsNowPlaying(ctx *gin.Context)
 	GetAllFilmsComingSoon(ctx *gin.Context)
-	GetAllFilmsNotPlaying(ctx *gin.Context)
 }
 
 func NewFilmController(filmS service.FilmService) FilmController {
@@ -89,16 +88,6 @@ func (fc *filmController) GetAllFilmsComingSoon(ctx *gin.Context) {
 	films, err := fc.filmService.GetAllFilmByStatus(ctx,"Coming Soon")
 	if err != nil {
 		resp := common.CreateFailResponse("failed to get all film that coming soon", http.StatusBadRequest)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
-		return
-	}
-	resp := common.CreateSuccessResponse("get film success", http.StatusCreated, films)
-	ctx.JSON(http.StatusCreated, resp)
-}
-func (fc *filmController) GetAllFilmsNotPlaying(ctx *gin.Context) {
-	films, err := fc.filmService.GetAllFilmByStatus(ctx,"Not Playing")
-	if err != nil {
-		resp := common.CreateFailResponse("failed to get all film that not playing", http.StatusBadRequest)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
