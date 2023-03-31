@@ -17,6 +17,8 @@ type TransactionService interface {
 	CreateNewTransaction(ctx context.Context, transactionDTO dto.TransactionMakeRequest) (entity.Transaction, error)
 	GetAllTransactions(ctx context.Context) ([]entity.Transaction, error)
 	GetTransactionByID(ctx context.Context, id uint64) (entity.Transaction, error)
+	GetTransactionsByUserID(ctx context.Context, userID uint64) ([]entity.Transaction, error)
+	DeleteTransactionByID(ctx context.Context, id uint64) error
 }
 
 func NewTransactionService(transactionR repository.TransactionRepository) TransactionService {
@@ -50,4 +52,20 @@ func (transactionS *transactionService) GetTransactionByID(ctx context.Context, 
 		return entity.Transaction{}, err
 	}
 	return transaction, nil
+}
+
+func (transactionS *transactionService) GetTransactionsByUserID(ctx context.Context, userID uint64) ([]entity.Transaction, error) {
+	transactions, err := transactionS.transactionRepository.GetTransactionsByUserID(ctx, nil, userID)
+	if err != nil {
+		return []entity.Transaction{}, err
+	}
+	return transactions, nil
+}
+
+func (transactionS *transactionService) DeleteTransactionByID(ctx context.Context, id uint64) error {
+	err := transactionS.transactionRepository.DeleteTransactionByID(ctx, nil, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

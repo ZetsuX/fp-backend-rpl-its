@@ -48,7 +48,7 @@ func main() {
 	filmC := controller.NewFilmController(filmS)
 	areaC := controller.NewAreaController(areaS)
 	sessionC := controller.NewSessionController(sessionS, areaS, filmS)
-	transactionC := controller.NewTransactionController(transactionS, sessionS, spotS)
+	transactionC := controller.NewTransactionController(transactionS, sessionS, spotS, userS)
 
 	defer config.DBClose(db)
 
@@ -60,7 +60,7 @@ func main() {
 
 	// Setting Up Routes
 	routes.UserRoutes(server, userC)
-	routes.FilmRoutes(server,filmC)
+	routes.FilmRoutes(server, filmC)
 	routes.AreaRoutes(server, areaC)
 	routes.SessionRoutes(server, sessionC)
 	routes.TransactionRoutes(server, transactionC)
