@@ -71,8 +71,8 @@ func (fc *filmController) GetAllFilms(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	resp := common.CreateSuccessResponse("get film success", http.StatusCreated, films)
-	ctx.JSON(http.StatusCreated, resp)
+	resp := common.CreateSuccessResponse("get film success", http.StatusOK, films)
+	ctx.JSON(http.StatusOK, resp)
 }
 func (fc *filmController) GetAllFilmsNowPlaying(ctx *gin.Context) {
 	films, err := fc.filmService.GetAllFilmByStatus(ctx,"Now Playing")
@@ -81,8 +81,8 @@ func (fc *filmController) GetAllFilmsNowPlaying(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	resp := common.CreateSuccessResponse("get film success", http.StatusCreated, films)
-	ctx.JSON(http.StatusCreated, resp)
+	resp := common.CreateSuccessResponse("get film success", http.StatusOK, films)
+	ctx.JSON(http.StatusOK, resp)
 }
 func (fc *filmController) GetAllFilmsComingSoon(ctx *gin.Context) {
 	films, err := fc.filmService.GetAllFilmByStatus(ctx,"Coming Soon")
@@ -91,8 +91,8 @@ func (fc *filmController) GetAllFilmsComingSoon(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	resp := common.CreateSuccessResponse("get film success", http.StatusCreated, films)
-	ctx.JSON(http.StatusCreated, resp)
+	resp := common.CreateSuccessResponse("get film success", http.StatusOK, films)
+	ctx.JSON(http.StatusOK, resp)
 }
 func (fc *filmController) GetFilmDetailBySlug(ctx *gin.Context) {
 	slug := ctx.Param("slug")
@@ -109,8 +109,8 @@ func (fc *filmController) GetFilmDetailBySlug(ctx *gin.Context) {
 		return
 	}
 
-	resp := common.CreateSuccessResponse("get film detail success", http.StatusCreated, film)
-	ctx.JSON(http.StatusCreated, resp)
+	resp := common.CreateSuccessResponse("get film detail success", http.StatusOK, film)
+	ctx.JSON(http.StatusOK, resp)
 }
 func (fc *filmController) UpdateFilm(ctx *gin.Context) {
 	slug := ctx.Param("slug")
@@ -161,8 +161,8 @@ func (fc *filmController) UpdateFilm(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	resp := common.CreateSuccessResponse("update film success", http.StatusCreated, updatedFilm)
-	ctx.JSON(http.StatusCreated, resp)
+	resp := common.CreateSuccessResponse("update film success", http.StatusOK, updatedFilm)
+	ctx.JSON(http.StatusOK, resp)
 }
 
 func (fc *filmController) DeleteFilm(ctx *gin.Context) {
@@ -187,6 +187,6 @@ func (fc *filmController) DeleteFilm(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
 		return
 	}
-	resp := common.CreateSuccessResponse("delete film success", http.StatusCreated, nil)
-	ctx.JSON(http.StatusCreated, resp)
+	resp := common.CreateSuccessResponse("delete film success", http.StatusOK, nil)
+	ctx.JSON(http.StatusOK, resp)
 }
