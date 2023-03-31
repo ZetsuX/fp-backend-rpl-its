@@ -109,6 +109,12 @@ func (fc *filmController) GetFilmDetailBySlug(ctx *gin.Context) {
 		return
 	}
 
+	if film.Status != "Now Playing" && film.Status != "Coming Soon" {
+		resp := common.CreateFailResponse("film with given slug inaccessible", http.StatusUnauthorized)
+		ctx.JSON(http.StatusUnauthorized, resp)
+		return
+	}
+
 	resp := common.CreateSuccessResponse("get film detail success", http.StatusOK, film)
 	ctx.JSON(http.StatusOK, resp)
 }
