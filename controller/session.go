@@ -86,6 +86,11 @@ func (sessionC *sessionController) CreateSession(ctx *gin.Context) {
 		return
 	}
 
+	if film.Status != "Now Playing" {
+		resp := common.CreateFailResponse("Film is not currently playing", http.StatusBadRequest)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		return
+	}
 	// Check Area by ID
 	area, err := sessionC.areaService.GetAreaByID(ctx, sessionDTO.AreaID)
 	if err != nil {
