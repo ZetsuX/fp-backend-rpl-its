@@ -22,6 +22,8 @@ type TransactionRepository interface {
 	CreateNewTransaction(ctx context.Context, tx *gorm.DB, transaction entity.Transaction) (entity.Transaction, error)
 	GetAllTransactions(ctx context.Context, tx *gorm.DB) ([]entity.Transaction, error)
 	GetTransactionByID(ctx context.Context, tx *gorm.DB, id uint64) (entity.Transaction, error)
+	GetTransactionsByUserID(ctx context.Context, tx *gorm.DB, userID uint64) ([]entity.Transaction, error)
+	DeleteTransactionByID(ctx context.Context, tx *gorm.DB, id uint64) error
 }
 
 func NewTransactionRepository(db *gorm.DB) *transactionRepository {
@@ -94,4 +96,36 @@ func (transactionR *transactionRepository) GetTransactionByID(ctx context.Contex
 		return transaction, err
 	}
 	return transaction, nil
+}
+
+func (transactionR *transactionRepository) GetTransactionsByUserID(ctx context.Context, tx *gorm.DB, userID uint64) ([]entity.Transaction, error) {
+	var err error
+	var transactions []entity.Transaction
+
+	if tx == nil {
+		tx = transactionR.db.WithContext(ctx).Debug().Where("user_id = $1", userID).Preload("Spots").Find(&transactions)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Where("user_id = $1", userID).Preload("Spots").Find(&transactions).Error
+	}
+
+	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound)) {
+		return transactions, err
+	}
+	return transactions, nil
+}
+
+func (transactionR *transactionRepository) DeleteTransactionByID(ctx context.Context, tx *gorm.DB, id uint64) error {
+	var err error
+	if tx == nil {
+		tx = transactionR.db.WithContext(ctx).Debug().Delete(&entity.Transaction{}, id)
+		err = tx.Error
+	} else {
+		err = tx.WithContext(ctx).Debug().Delete(&entity.Transaction{}, id).Error
+	}
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
