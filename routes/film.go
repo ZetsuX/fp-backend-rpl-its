@@ -14,7 +14,7 @@ func FilmRoutes(router *gin.Engine, filmC controller.FilmController) {
 		filmRoutes.POST("/", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.CreateFilm)
 		filmRoutes.GET("/", filmC.GetAllFilmsNowPlaying)
 		filmRoutes.GET("/coming-soon", filmC.GetAllFilmsComingSoon)
-		filmRoutes.GET("/all", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.GetAllFilms)
+		filmRoutes.GET("/all", filmC.GetAllFilms)
 		filmRoutes.PUT("/:slug", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.UpdateFilm)
 		filmRoutes.GET("/:slug", filmC.GetFilmDetailBySlug)
 		filmRoutes.DELETE("/:slug", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.DeleteFilm)
