@@ -54,9 +54,7 @@ func main() {
 
 	// Setting Up Server
 	server := gin.Default()
-	server.Use(
-		middleware.CORSMiddleware(),
-	)
+	server.Use(middleware.CORSMiddleware())
 
 	// Setting Up Routes
 	routes.UserRoutes(server, userC)
