@@ -11,8 +11,8 @@ import (
 func FilmRoutes(router *gin.Engine, filmC controller.FilmController) {
 	filmRoutes := router.Group("/api/v1/films")
 	{
-		filmRoutes.POST("/", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.CreateFilm)
-		filmRoutes.GET("/", filmC.GetAllFilmsNowPlaying)
+		filmRoutes.POST("", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.CreateFilm)
+		filmRoutes.GET("", filmC.GetAllFilmsNowPlaying)
 		filmRoutes.GET("/coming-soon", filmC.GetAllFilmsComingSoon)
 		filmRoutes.GET("/all", filmC.GetAllFilms)
 		filmRoutes.PUT("/:slug", middleware.Authenticate(service.NewJWTService(), "admin"), filmC.UpdateFilm)
