@@ -160,6 +160,12 @@ func (transactionC *transactionController) GetTransactionsByUsername(ctx *gin.Co
 		return
 	}
 
+	if reflect.DeepEqual(user, entity.User{}) {
+		resp := common.CreateFailResponse("user with given username not found", http.StatusBadRequest)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
 	transactions, err := transactionC.transactionService.GetTransactionsByUserID(ctx, user.ID)
 	if err != nil {
 		resp := common.CreateFailResponse("failed to fetch user transactions", http.StatusBadRequest)
