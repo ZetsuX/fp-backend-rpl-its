@@ -13,8 +13,17 @@ func SessionRoutes(router *gin.Engine, sessionC controller.SessionController) {
 	{
 		sessionRoutes.POST("", middleware.Authenticate(service.NewJWTService(), "admin"), sessionC.CreateSession)
 		sessionRoutes.GET("", middleware.Authenticate(service.NewJWTService(), "admin"), sessionC.GetAllSessions)
-		sessionRoutes.GET("/:filmslug", sessionC.GetSessionsByFilmSlug)
 		sessionRoutes.DELETE("/:id", middleware.Authenticate(service.NewJWTService(), "admin"), sessionC.DeleteSessionByID)
-		sessionRoutes.GET("/:filmslug/:id", sessionC.GetSessionDetailByID)
+		
+	}
+
+	sessionFilmRoutes := router.Group("/api/v1/sessions/films")
+	{
+		sessionFilmRoutes.GET("/:filmslug", sessionC.GetSessionsByFilmSlug)
+	}
+
+	sessionDetailFilmRoutes := router.Group("/api/v1/sessions/:id/films")
+	{
+		sessionDetailFilmRoutes.GET("/:filmslug", sessionC.GetSessionDetailByID)
 	}
 }
